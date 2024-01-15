@@ -1,0 +1,23 @@
+@import "../theme/variables.css";
+
+.editorDiv {
+    height: 100%;
+    display: flex;
+}
+
+.editorDiv div {
+    width: 50%;
+    height: 100%;
+    margin: 1em;
+}
+
+.output {
+    border-style:solid;
+    padding: 1em;
+}
+
+.textAreaDiv textarea {
+height: 100%;
+width: 100%;
+background-color: var(--ion-background-color);
+}
