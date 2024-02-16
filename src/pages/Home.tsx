@@ -1,12 +1,13 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButtons, IonButton } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButtons, IonButton, IonMenu, IonMenuButton, IonItem, IonLabel } from '@ionic/react';
 import ExploreContainer from '../components/ExploreContainer';
 import './Home.css';
 import { useState, useRef, useEffect } from 'react';
 import Editor from '../components/Editor';
 import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
-import {FileOpener} from '@ionic-native/file-opener'
-
-
+import { Dialog } from '@capacitor/dialog';
+import { menuController } from '@ionic/core/components';
+import '../components/FileSystemHandler'
+import { saveFile, loadNotesData, loadNotesList, listOfNotes } from '../components/FileSystemHandler';
 
 
 const Home: React.FC = () => {
@@ -25,7 +26,7 @@ const Home: React.FC = () => {
 
   
   //Then get the file that is in the list.
-  const [noteString, setNoteString] = useState('This is a test');
+  const [noteString, setNoteString] = useState('Attempting external 3.');
   var noteLoaded = false;
 
   let noteChild = useRef<HTMLTextAreaElement | null>(null);
@@ -101,32 +102,110 @@ const Home: React.FC = () => {
   //   document.body.removeChild(link);
   // }
 
-  async function saveFile(strToPut:string) {
-    // await Filesystem.writeFile({
-    //   path: 'secrets/text.txt',
-    //   data: 'This is a test',
-    //   directory: Directory.Documents,
-    //   encoding: Encoding.UTF8,
-    // });
-  };
+  // async function saveFile() {
 
+  //   //We will just create a new file as an attempt to get something
+
+  //   const resultsomething = await Filesystem.writeFile({
+  //     path: 'meowtest123.txt',
+  //     data: 'This is a test 23232323232',
+  //     directory: Directory.Documents,
+  //     encoding: Encoding.UTF8,
+  //   });
+
+  //   console.log("It should save a secret file, sneaky!");
+
+
+  //   await Dialog.alert({
+  //     title: 'Saved!',
+  //     message: 'It should be saved.',
+  //   });
+    
+  //   // const contents = await Filesystem.readFile({
+  //   //   path: 'secrets/meowtest123.txt',
+  //   //   directory: Directory.Documents,
+  //   //   encoding: Encoding.UTF8,
+  //   // });
+  
+  //   // console.log('secrets:', contents);
+  // };
+
+  async function openOptionsMenu() {
+    /**
+     * Open the menu by menu-id
+     * We refer to the menu using an ID
+     * because multiple "start" menus exist.
+     */
+    await menuController.open('options-menu');
+  }
+
+  async function openNotesMenu() {
+    /**
+     * Open the menu by menu-id
+     * We refer to the menu using an ID
+     * because multiple "start" menus exist.
+     */
+    await menuController.open('notes-menu');
+    loadNotesList();
+  }
+
+  const listNotes = Array.from({length: listOfNotes.length}, (_, index) => {
+    return (
+      <IonItem key={index}>
+        <IonLabel>
+          {listOfNotes.at(index)}
+        </IonLabel>
+      </IonItem>
+    )
+  });
+ 
   return (
-    <IonPage>
+    <>
+
+    <IonMenu contentId="main-content" menuId="options-menu">
       <IonHeader>
-        <IonToolbar>
-          <IonTitle>NoteSketchr (VERY WIP)</IonTitle>
-          <IonButtons slot="end">
-            <IonButton onClick={() => setMode(0)}>Script</IonButton>
-            <IonButton onClick={() => setMode(1)}>Preview</IonButton>
+
+          <IonToolbar>
+            <IonTitle>Options</IonTitle>
+          </IonToolbar>
+          
+        </IonHeader>
+        <IonContent>
+        <div className="buttons-options">
+            <IonButton fill="outline" onClick={() => setMode(0)}>Script</IonButton>
+            <IonButton fill="outline" onClick={() => setMode(1)}>Preview</IonButton>
 
             {/* This input element should be hidden, we are just using it as a way to upload. */}
             <input type='file' id='file' ref={inputFile} style={{display: 'none'}} onChange={() => asyncLoadNote()}/>
 
             {/* This is the actual button that does the input element's job. */}
-            <IonButton onClick={() => inputFile.current?.click()}>Load a note</IonButton>
-            <IonButton onClick={() => {
-              if (noteChild.current != null && noteChild.current.value != undefined) saveFile(noteChild.current.value)}
+            <IonButton fill="outline"onClick={() => inputFile.current?.click()}>Load a note</IonButton>
+            <IonButton fill="outline" onClick={() => {
+              saveFile(noteString)}
             }>Save a note</IonButton>
+        </div>
+        </IonContent>
+      </IonMenu>
+
+      <IonMenu contentId="main-content" menuId="notes-menu">
+      <IonHeader>
+          <IonToolbar>
+            <IonTitle>Notes</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding">This is the notes content.
+        {listNotes}
+        
+        </IonContent>
+      </IonMenu>
+    <IonPage id="main-content">
+      <IonHeader>
+        <IonToolbar>
+          
+          <IonTitle>NoteSketchr (VERY WIP)</IonTitle>
+          <IonButtons slot="end">
+            <IonButton onClick={openOptionsMenu}>Options</IonButton>
+            <IonButton onClick={openNotesMenu}>Notes</IonButton>
           </IonButtons>
         </IonToolbar>
       </IonHeader>
@@ -140,6 +219,8 @@ const Home: React.FC = () => {
         <Editor mode={isInMode} stringOfNote={noteString} checkNoteLoad={noteLoaded} forwardedRef={noteChild}></Editor>
       </IonContent>
     </IonPage>
+
+    </>
   );
 };
 
