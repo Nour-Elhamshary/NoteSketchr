@@ -1,13 +1,13 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButtons, IonButton, IonMenu, IonMenuButton, IonItem, IonLabel } from '@ionic/react';
 import ExploreContainer from '../components/ExploreContainer';
 import './Home.css';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useReducer } from 'react';
 import Editor from '../components/Editor';
-import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
+import { Directory, Encoding, FileInfo, Filesystem } from '@capacitor/filesystem';
 import { Dialog } from '@capacitor/dialog';
 import { menuController } from '@ionic/core/components';
 import '../components/FileSystemHandler'
-import { saveFile, loadNotesData, loadNotesList, listOfNotes } from '../components/FileSystemHandler';
+import { saveFile, loadNotesList, loadNote, saveSameFile, getNotesList } from '../components/FileSystemHandler';
 
 
 const Home: React.FC = () => {
@@ -19,7 +19,7 @@ const Home: React.FC = () => {
   
   */
   const [isInMode, setMode] = useState(0);
-
+  
   //Try to input in files
   //First get a constant that handles an input element
   const inputFile = useRef<HTMLInputElement | null>(null);
@@ -30,7 +30,10 @@ const Home: React.FC = () => {
   var noteLoaded = false;
 
   let noteChild = useRef<HTMLTextAreaElement | null>(null);
+  const [currentNoteIndex, setNoteIndex] = useState(0);
+  const [ignored ,forceUpdate] = useReducer(x => x + 1, 0);
 
+  const [listOfNotes, setListOfNotes] = useState<FileInfo[]>([]);
   async function asyncLoadNote(): Promise<void>{
         //Then it should provide either a file or no file. Check about it.
         if (inputFile.current?.files != null) {
@@ -145,20 +148,24 @@ const Home: React.FC = () => {
      * We refer to the menu using an ID
      * because multiple "start" menus exist.
      */
+    await loadNotesList().then(result => {
+      setListOfNotes(getNotesList());
+    });
     await menuController.open('notes-menu');
-    loadNotesList();
+
   }
 
-  const listNotes = Array.from({length: listOfNotes.length}, (_, index) => {
-    return (
-      <IonItem key={index}>
-        <IonLabel>
-          {listOfNotes.at(index)}
-        </IonLabel>
-      </IonItem>
-    )
-  });
- 
+  // const listNotes = Array.from({length: listOfNotes.length}, (_, index) => {
+  //   return (
+  //     <IonItem key={index}>
+  //       <IonLabel>
+  //         {listOfNotes.at(index)?.name}
+  //       </IonLabel>
+  //     </IonItem>
+      
+  //   )
+  // });
+
   return (
     <>
 
@@ -181,8 +188,13 @@ const Home: React.FC = () => {
             {/* This is the actual button that does the input element's job. */}
             <IonButton fill="outline"onClick={() => inputFile.current?.click()}>Load a note</IonButton>
             <IonButton fill="outline" onClick={() => {
-              saveFile(noteString)}
+              saveFile(noteChild.current?.textContent)}
             }>Save a note</IonButton>
+            
+            <IonButton fill="outline" onClick={() => {
+              saveSameFile(noteChild.current?.textContent, currentNoteIndex)}
+            }>Save the current note</IonButton>
+
         </div>
         </IonContent>
       </IonMenu>
@@ -194,8 +206,18 @@ const Home: React.FC = () => {
           </IonToolbar>
         </IonHeader>
         <IonContent className="ion-padding">This is the notes content.
-        {listNotes}
-        
+
+        {Array.from({length: listOfNotes.length}, (_, index) => {
+
+    return (
+      <IonItem key={index} button onClick={async () => {getNotesList(); setNoteString(await loadNote(listOfNotes.at(index)?.name)); setNoteIndex(index)}}>
+        <IonLabel>
+          {listOfNotes.at(index)?.name}
+        </IonLabel>
+      </IonItem>
+      
+    )
+  })}
         </IonContent>
       </IonMenu>
     <IonPage id="main-content">
