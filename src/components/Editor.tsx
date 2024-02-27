@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react"
 import "./Editor.css"
 import MarkdownDisplay from "./MarkdownDisplay";
+import Markdown from 'react-markdown'
+import EditorJS from '@editorjs/editorjs';
 
 
 
@@ -9,6 +11,7 @@ import MarkdownDisplay from "./MarkdownDisplay";
 export default function Editor({mode, stringOfNote, checkNoteLoad, forwardedRef}: {mode:number, stringOfNote:string, checkNoteLoad:boolean, forwardedRef:any}){
     
     const [getContent, takeUserInput] = useState('');
+
     console.log(checkNoteLoad);
 
     useEffect(() => {
@@ -16,11 +19,11 @@ export default function Editor({mode, stringOfNote, checkNoteLoad, forwardedRef}
             console.log("It should load something!")
     }, [stringOfNote])
 
-
+    
 
     return (
-        <div className="editorDiv">
-            {mode==0 && (
+        <>
+            {mode==2 && (
                 <div className="textAreaDiv">
                 <textarea
                 ref ={forwardedRef}
@@ -37,8 +40,13 @@ export default function Editor({mode, stringOfNote, checkNoteLoad, forwardedRef}
                     </div>
                 )
             }
+            {
+                mode==0 && (
+                    <div id="editorjs"/>
+                )
+            }
 
 
-        </div>
+        </>
     )
 }

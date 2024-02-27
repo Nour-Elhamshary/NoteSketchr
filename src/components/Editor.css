@@ -11,8 +11,16 @@
     margin: 1em;
 }
 
+.ce-inline-toolbar {
+    background-color: var(--ion-background-color)
+}
+.ce-inline-tool {
+    color: var(--ion-color);
+}
 
-
+.ce-inline-tool--active {
+    color: var(--ion-background-color)
+}
 .output {
     border-style:solid;
     padding: 1em;

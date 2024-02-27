@@ -1,14 +1,21 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButtons, IonButton, IonMenu, IonMenuButton, IonItem, IonLabel } from '@ionic/react';
 import ExploreContainer from '../components/ExploreContainer';
 import './Home.css';
-import { useState, useRef, useEffect, useReducer } from 'react';
+import { createContext, useState, useRef, useEffect, useReducer, useContext } from 'react';
 import Editor from '../components/Editor';
 import { Directory, Encoding, FileInfo, Filesystem } from '@capacitor/filesystem';
 import { Dialog } from '@capacitor/dialog';
 import { menuController } from '@ionic/core/components';
 import '../components/FileSystemHandler'
-import { saveFile, loadNotesList, loadNote, saveSameFile, getNotesList } from '../components/FileSystemHandler';
+import { loadNotesList, loadNote, saveSameFile, getNotesList, SaveFile } from '../components/FileSystemHandler';
+import EditorJS from '@editorjs/editorjs';
 
+//Create an interface for the context
+interface EC {
+  altEditor: any
+}
+
+export const EditorContext = createContext<EC>({} as EC);
 
 const Home: React.FC = () => {
   /*Set the one usestate for editor mode. It's integer for enumeration purposes. 
@@ -19,10 +26,16 @@ const Home: React.FC = () => {
   
   */
   const [isInMode, setMode] = useState(0);
+  const initEditorCalled = useRef(false);
   
   //Try to input in files
   //First get a constant that handles an input element
   const inputFile = useRef<HTMLInputElement | null>(null);
+  
+  
+  const [altEditor] = useState(new EditorJS({
+    holder:'editorjs',
+  }));
 
   
   //Then get the file that is in the list.
@@ -31,7 +44,6 @@ const Home: React.FC = () => {
 
   let noteChild = useRef<HTMLTextAreaElement | null>(null);
   const [currentNoteIndex, setNoteIndex] = useState(0);
-  const [ignored ,forceUpdate] = useReducer(x => x + 1, 0);
 
   const [listOfNotes, setListOfNotes] = useState<FileInfo[]>([]);
   async function asyncLoadNote(): Promise<void>{
@@ -48,90 +60,6 @@ const Home: React.FC = () => {
   }
   }
 
-
-  // async function saveFile(strToPut:string) {
-  //   // create a new handle
-  //   const newHandle = await window.showSaveFilePicker({
-  //     types:[
-  //       {
-  //         description: "Text file",
-  //         accept: { "text/plain": [".txt"] },
-  //       },
-  //     ]
-  //   });
-  
-
-
-  //   // create a FileSystemWritableFileStream to write to
-  //   const writableStream = await newHandle.createWritable();
-    
-  //   //Since we're dealing with string, we're going to do it as a blob
-  //   const blob = new Blob([strToPut], {type : 'plain/text'});
-    
-  //   // write our file
-  //   await writableStream.write(blob);
-  
-  //   // close the file and write the contents to disk.
-  //   await writableStream.close();
-  // }
-  
-  // async function saveFile(strToPut:string) {
-
-  //   //Since we're dealing with string, we're going to do it as a blob
-  //   const blob = new Blob([strToPut], {type : 'plain/text'});
-
-  //   // Turn to blob url
-  //   const blobUrl = URL.createObjectURL(blob);
-
-  //   // Create a link element
-  //   const link = document.createElement("a");
-
-  //   // Set link's href to point to the Blob URL
-  //   link.href = blobUrl;
-  //   link.download = "note.txt";
-
-
-  //   // Dispatch click event on the link
-  //   // This is necessary as link.click() does not work on the latest firefox
-  //   link.dispatchEvent(
-  //     new MouseEvent('click', { 
-  //       bubbles: true, 
-  //       cancelable: true, 
-  //       view: window 
-  //     })
-  //   );
-
-  //   // Remove link from body
-  //   document.body.removeChild(link);
-  // }
-
-  // async function saveFile() {
-
-  //   //We will just create a new file as an attempt to get something
-
-  //   const resultsomething = await Filesystem.writeFile({
-  //     path: 'meowtest123.txt',
-  //     data: 'This is a test 23232323232',
-  //     directory: Directory.Documents,
-  //     encoding: Encoding.UTF8,
-  //   });
-
-  //   console.log("It should save a secret file, sneaky!");
-
-
-  //   await Dialog.alert({
-  //     title: 'Saved!',
-  //     message: 'It should be saved.',
-  //   });
-    
-  //   // const contents = await Filesystem.readFile({
-  //   //   path: 'secrets/meowtest123.txt',
-  //   //   directory: Directory.Documents,
-  //   //   encoding: Encoding.UTF8,
-  //   // });
-  
-  //   // console.log('secrets:', contents);
-  // };
 
   async function openOptionsMenu() {
     /**
@@ -181,14 +109,16 @@ const Home: React.FC = () => {
         <div className="buttons-options">
             <IonButton fill="outline" onClick={() => setMode(0)}>Script</IonButton>
             <IonButton fill="outline" onClick={() => setMode(1)}>Preview</IonButton>
-
+            <IonButton fill="outline" onClick={() => setMode(2)}>Alt Script</IonButton>
             {/* This input element should be hidden, we are just using it as a way to upload. */}
             <input type='file' id='file' ref={inputFile} style={{display: 'none'}} onChange={() => asyncLoadNote()}/>
 
+
             {/* This is the actual button that does the input element's job. */}
             <IonButton fill="outline"onClick={() => inputFile.current?.click()}>Load a note</IonButton>
+            
             <IonButton fill="outline" onClick={() => {
-              saveFile(noteChild.current?.textContent)}
+              SaveFile(noteChild.current?.textContent, altEditor)}
             }>Save a note</IonButton>
             
             <IonButton fill="outline" onClick={() => {
@@ -210,7 +140,7 @@ const Home: React.FC = () => {
         {Array.from({length: listOfNotes.length}, (_, index) => {
 
     return (
-      <IonItem key={index} button onClick={async () => {getNotesList(); setNoteString(await loadNote(listOfNotes.at(index)?.name)); setNoteIndex(index)}}>
+      <IonItem key={index} button onClick={async () => {getNotesList(); setNoteString(await loadNote(listOfNotes.at(index)?.name, altEditor)); setNoteIndex(index)}}>
         <IonLabel>
           {listOfNotes.at(index)?.name}
         </IonLabel>
