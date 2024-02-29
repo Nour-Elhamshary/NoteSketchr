@@ -1,10 +1,9 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButtons, IonButton, IonMenu, IonMenuButton, IonItem, IonLabel } from '@ionic/react';
-import ExploreContainer from '../components/ExploreContainer';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButtons, IonButton, IonMenu, IonItem, IonLabel } from '@ionic/react';
 import './Home.css';
-import { createContext, useState, useRef, useEffect, useReducer, useContext } from 'react';
+import { createContext, useState, useRef } from 'react';
 import Editor from '../components/Editor';
-import { Directory, Encoding, FileInfo, Filesystem } from '@capacitor/filesystem';
-import { Dialog } from '@capacitor/dialog';
+import {FileInfo } from '@capacitor/filesystem';
+
 import { menuController } from '@ionic/core/components';
 import '../components/FileSystemHandler'
 import { loadNotesList, loadNote, saveSameFile, getNotesList, SaveFile } from '../components/FileSystemHandler';
@@ -83,17 +82,6 @@ const Home: React.FC = () => {
 
   }
 
-  // const listNotes = Array.from({length: listOfNotes.length}, (_, index) => {
-  //   return (
-  //     <IonItem key={index}>
-  //       <IonLabel>
-  //         {listOfNotes.at(index)?.name}
-  //       </IonLabel>
-  //     </IonItem>
-      
-  //   )
-  // });
-
   return (
     <>
 
@@ -140,7 +128,7 @@ const Home: React.FC = () => {
         {Array.from({length: listOfNotes.length}, (_, index) => {
 
     return (
-      <IonItem key={index} button onClick={async () => {getNotesList(); setNoteString(await loadNote(listOfNotes.at(index)?.name, altEditor)); setNoteIndex(index)}}>
+      <IonItem key={index} button onClick={async () => {getNotesList(); await loadNote(listOfNotes.at(index)?.name, altEditor); setNoteIndex(index)}}>
         <IonLabel>
           {listOfNotes.at(index)?.name}
         </IonLabel>

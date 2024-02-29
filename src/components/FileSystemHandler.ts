@@ -1,57 +1,67 @@
-import { Capacitor } from '@capacitor/core';
 import { Dialog } from '@capacitor/dialog';
 import { Directory, Encoding, FileInfo, Filesystem } from '@capacitor/filesystem';
-import {EditorContext} from "../pages/Home"
-import { useContext } from 'react';
-import EditorJS from '@editorjs/editorjs';
-import Markdown from 'react-markdown';
+
+
 //Constants.
 const NOTES_DIR = 'notesketchr';
 const MainDirectory = Directory.Documents;
 
-
-
 //Arrays
 let notesList: FileInfo[] = [];
 
-export async function loadNote(noteFileName:any): Promise<any>;
-export async function loadNote(noteFileName:any, editor:any): Promise<any>;
-export async function loadNote(noteFileName: any, editor?:any): Promise<string>{
-    let temp = "";
-    let temp2;
-    console.log(noteFileName);
+/**
+ * 
+ * Loads a note from a file and then outputs it to the editor.
+ * @async
+ * @param noteFileName fileName - The name of the file that stores the note.
+ * @param editor editor - Instance of the editor.
+ */
+
+export async function loadNote(noteFileName:any): Promise<void>;
+export async function loadNote(noteFileName:any, editor:any): Promise<void>;
+export async function loadNote(noteFileName: any, editor?:any){
+    //Temporary strings to store in any value from them.
+    let tempString = "";
+    let tempString2;
+
+    //If the file name is actually available, then execute these
+    //sets of statements.
     if (noteFileName != undefined) {
+        //Attempt to load the file itself, and store the contents to tempString
         const contents = await Filesystem.readFile({
             path: `${NOTES_DIR}/${noteFileName}`,
             directory: MainDirectory,
             encoding: Encoding.UTF8
-        }).then(result => {temp = result.data.toString()})
+        }).then(result => {tempString = result.data.toString()})
     }
 
+    //Then check if both the div that stores the editor exists alongside
+    //an instance of the editor.
     var editorElement = document.getElementById("editorjs");
     if (editorElement != null && editor != undefined) {
-        console.log("should be loading.");
-        temp2 = MarkdownToJSON(temp);
-        //First, delete everything in there.
+        //If yes, then we assume that it is a markdown file,
+        //so we parse it to JSON.
+        tempString2 = MarkdownToJSON(tempString);
+        //First, delete everything that may be in the editor itself.
+        //Delete from last block to first block.
         for (var i = editor.blocks.getBlocksCount() -1 ; i >= 0; i--) {
             await editor.blocks.delete(i);
         }
         
-        //And then add in the new information.
-        for (var i = 0; i < temp2.length; i++) {
-        editor.blocks.insert("paragraph", {text: temp2[i]}) 
+        //And then add in the new information one block at a time.
+        for (var i = 0; i < tempString2.length; i++) {
+        editor.blocks.insert("paragraph", {text: tempString2[i]}) 
         }
     }
-
-
-
-    console.log(temp);
-    return temp;
-
 }
-export async function loadNotesList() {
-    
 
+/**
+ * Loads a list of notes available in the directory, and then is inserted
+ * to the global array notesList.
+ * @async
+ */
+
+export async function loadNotesList() {
     await Filesystem.readdir({
         directory : MainDirectory,
         path: NOTES_DIR
@@ -79,6 +89,10 @@ export async function loadNotesList() {
 
 }
 
+/**
+ * Returns the list of notes stored in the global array notesList.
+ * @returns notesList
+ */
 export function getNotesList(): FileInfo[] {
     return notesList
 }
@@ -88,6 +102,12 @@ export function getNotesList(): FileInfo[] {
 JSON parsing functions to convert to Markdown and vice versa.
 */
 
+/**
+ * Converts any JSON data provided by the editor to a file compatible for
+ * markdown files.
+ * @param JSONData json - JSON data provided by the editor.
+ * @returns outputString
+ */
 export function JSONToMarkdown(JSONData: any): string {
     let outputString = "";
 
@@ -102,26 +122,31 @@ export function JSONToMarkdown(JSONData: any): string {
             default:
             break;
         }
-
-        
-
     }
 
-    //Check if there's any bold/italics that happened around here.
-    //For bold
+    //This section is for parsing any JSON areas to Markdown.
+    //For bold, ** is used instead of <b> HTML tag, so we replace it.
     outputString = outputString.replace(/<b>/g, "**");
     outputString = outputString.replace(/<\/b>/g, "**");
-    //For italics
+
+    //For italics, * is used instead of <i> HTML tag, so we replace it.
     outputString = outputString.replace(/<i>/g, "*");
     outputString = outputString.replace(/<\/i>/g, "*");
 
-    //Deal with other HTML symbols.
+    //Deal with other HTML symbols, like spaces and line breaks if necessary.
     outputString = outputString.replace(/&nbsp;/g, " ");
 
     console.log(outputString);
     return outputString;
 
 }
+
+/**
+ * Converts any Markdown compatible files to JSON compatible for the editor.
+ * @param StringData 
+ * @returns strings - returns an array of strings that has been parsed
+ * from Markdown compatible data to JSON compatible for the editor.
+ */
 
 export function MarkdownToJSON(StringData: string): any {
     let data = StringData;
@@ -143,7 +168,11 @@ Saving file. It should check on which platform we are working on, and then execu
 For now, we are going to deal through mobile, which means we get to deal with Capacitor's filesystem functions.
 */
 
-//Save the file if there are no index provided (basically saving a new file)
+/**
+ * Saves the note externally to the specified folder that is dictated by the program.
+ * @param noteString - any string to insert to an editor (OLD, WILL BE REMOVED SOON)  
+ * @param editor - An instance of the editor.
+ */
 
 export async function SaveFile(noteString:any): Promise<any>;
 export async function SaveFile(noteString:any, editor:any): Promise<any>;
@@ -217,7 +246,11 @@ export async function SaveFile(noteString:any, editor?:any) {
          )
     }
 }
-
+/**
+ * Saves the note externally to the same file using its index.
+ * @param noteString - string to store to
+ * @param noteIndex - index number of the file that is stored in the array.
+ */
 export async function saveSameFile(noteString:any, noteIndex:number) {
 
     //Do NOT save if noteString is either null or undefined.
