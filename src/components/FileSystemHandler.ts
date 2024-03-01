@@ -9,6 +9,36 @@ const MainDirectory = Directory.Documents;
 //Arrays
 let notesList: FileInfo[] = [];
 
+export async function loadNoteInString(text:string, editor:any) {
+    let tempString = text;
+    let tempString2: string[];
+    var editorElement = document.getElementById("editorjs");
+    if (editorElement != null && editor != undefined) {
+        //If yes, then we assume that it is a markdown file,
+        //so we parse it to JSON.
+        tempString2 = MarkdownToJSON(tempString);
+        //First, delete everything that may be in the editor itself.
+        //Delete from last block to first block.
+        for (var i = editor.blocks.getBlocksCount() -1 ; i >= 0; i--) {
+            await editor.blocks.delete(i);
+        }
+        
+        //And then add in the new information one block at a time.
+        for (var i = 0; i < tempString2.length; i++) {
+            //If any markdown headers are found, then
+            if (tempString2[i].includes("#")) {
+                await editor.blocks.insert("header",{
+                    text: tempString2[i].replace(/\#/gm, ""),
+                    level: tempString2[i].split(/\#/g).length - 1
+                })
+                continue;
+            }
+            await editor.blocks.insert("paragraph", {text: tempString2[i]}) 
+        }
+    }
+}
+
+
 /**
  * 
  * Loads a note from a file and then outputs it to the editor.
@@ -22,7 +52,7 @@ export async function loadNote(noteFileName:any, editor:any): Promise<void>;
 export async function loadNote(noteFileName: any, editor?:any){
     //Temporary strings to store in any value from them.
     let tempString = "";
-    let tempString2;
+    let tempString2: string[];
 
     //If the file name is actually available, then execute these
     //sets of statements.
@@ -50,7 +80,15 @@ export async function loadNote(noteFileName: any, editor?:any){
         
         //And then add in the new information one block at a time.
         for (var i = 0; i < tempString2.length; i++) {
-        editor.blocks.insert("paragraph", {text: tempString2[i]}) 
+            //If any markdown headers are found, then
+            if (tempString2[i].includes("#")) {
+                await editor.blocks.insert("header",{
+                    text: tempString2[i].replace(/\#/gm, ""),
+                    level: tempString2[i].split(/\#/g).length - 1
+                })
+                continue;
+            }
+            await editor.blocks.insert("paragraph", {text: tempString2[i]}) 
         }
     }
 }
@@ -119,6 +157,14 @@ export function JSONToMarkdown(JSONData: any): string {
             case 'paragraph':
                 outputString += JSONData.blocks[i].data.text + `\n`;
             break;
+            case 'header':
+                //In markdown, # is used for headers with H1 through H6
+                //being repeated in markdown, so do that.
+                for (let i = 0; i < JSONData.blocks[i].data.level; i++) {
+                    outputString += "#";
+                }
+                outputString += " " + JSONData.blocks[i].data.text + '\n';
+            break;
             default:
             break;
         }
@@ -158,6 +204,8 @@ export function MarkdownToJSON(StringData: string): any {
     //Bold should be taken care of, so concentrate on italics.
     data = data.replace(/\*/gm, "<i>");
     data = data.replace(/<i>(?!\b)/gm, "</i>");
+
+
     console.log(data);
     let strings = data.split(/\n/);
     return strings;
@@ -209,8 +257,8 @@ export async function SaveFile(noteString:any, editor?:any) {
                title: 'Set name',
                message: `Set the name of the note. If cancelled, it'll be set in a random name.`,
          })
-         if (cancelled) fileName = new Date().getTime() + '.txt';
-         else fileName = value + '.txt';
+         if (cancelled) fileName = new Date().getTime() + '.md';
+         else fileName = value + '.md';
 
 
          const savedFile = await Filesystem.writeFile({

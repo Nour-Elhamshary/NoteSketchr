@@ -11,16 +11,32 @@
     margin: 1em;
 }
 
-.ce-inline-toolbar {
+.ce-inline-toolbar,
+.ce-conversion-tool__icon,
+.ce-toolbar__actions,
+.ce-conversion-toolbar {
     background-color: var(--ion-background-color)
 }
+
+.ce-block--selected .ce-block__content,
+.ce-toolbar__actions--selected,
+.ce-toolbar__plus:hover,
+.ce-toolbar__settings-btn:hover,
+.ce-inline-tool--active,
+.ce-inline-tool:hover,
+.ce-inline-toolbar__dropdown:hover,
+.cdx-block::selection
+{
+    background-color: var(--ion-color-primary)
+}
+
+.ce-toolbar__plus,
+.ce-toolbar__settings-btn,
 .ce-inline-tool {
     color: var(--ion-color);
 }
 
-.ce-inline-tool--active {
-    color: var(--ion-background-color)
-}
+
 .output {
     border-style:solid;
     padding: 1em;

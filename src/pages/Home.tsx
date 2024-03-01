@@ -2,12 +2,14 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButtons, IonBu
 import './Home.css';
 import { createContext, useState, useRef } from 'react';
 import Editor from '../components/Editor';
+import Header from '@editorjs/header';
 import {FileInfo } from '@capacitor/filesystem';
+
 
 import { menuController } from '@ionic/core/components';
 import '../components/FileSystemHandler'
-import { loadNotesList, loadNote, saveSameFile, getNotesList, SaveFile } from '../components/FileSystemHandler';
-import EditorJS from '@editorjs/editorjs';
+import { loadNotesList, loadNote, saveSameFile, getNotesList, SaveFile, loadNoteInString } from '../components/FileSystemHandler';
+import EditorJS, { InlineToolConstructable } from '@editorjs/editorjs';
 
 //Create an interface for the context
 interface EC {
@@ -31,10 +33,15 @@ const Home: React.FC = () => {
   //First get a constant that handles an input element
   const inputFile = useRef<HTMLInputElement | null>(null);
   
-  
+  //Editor React State
   const [altEditor] = useState(new EditorJS({
     holder:'editorjs',
+
+    tools: {
+      header: Header
+    }
   }));
+
 
   
   //Then get the file that is in the list.
@@ -51,12 +58,16 @@ const Home: React.FC = () => {
           //There should at least be one file on this array if the condition is true.
           //So try to fetch it.
           var noteFile = inputFile.current?.files[0];
-          var temp = await noteFile.text();
+          let temp = await noteFile.text();
           
-          setNoteString(temp);
+          console.log(temp);
+          await loadNoteInString(temp, altEditor);
+          inputFile.current.files = null;
+          inputFile.current.value = '';
+    }
 
-          noteLoaded = true
-  }
+      
+
   }
 
 
