@@ -25,7 +25,9 @@
 .ce-inline-tool--active,
 .ce-inline-tool:hover,
 .ce-inline-toolbar__dropdown:hover,
-.cdx-block::selection
+.cdx-block::selection,
+.ce-toolbar__plus,
+.ce-toolbar__settings-btn
 {
     background-color: var(--ion-color-primary)
 }

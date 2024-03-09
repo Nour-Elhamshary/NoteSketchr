@@ -1,11 +1,11 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButtons, IonButton, IonMenu, IonItem, IonLabel } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButtons, IonButton, IonMenu, IonItem, IonLabel, IonToggle } from '@ionic/react';
 import './Home.css';
-import { createContext, useState, useRef } from 'react';
+import { createContext, useState, useRef, useEffect } from 'react';
 import Editor from '../components/Editor';
 import Header from '@editorjs/header';
 import {FileInfo } from '@capacitor/filesystem';
-
-
+import type { ToggleCustomEvent } from '@ionic/react';
+import '../theme/variables.css'
 import { menuController } from '@ionic/core/components';
 import '../components/FileSystemHandler'
 import { loadNotesList, loadNote, saveSameFile, getNotesList, SaveFile, loadNoteInString } from '../components/FileSystemHandler';
@@ -26,6 +26,41 @@ const Home: React.FC = () => {
   1 - Preview
   
   */
+
+  //Toggle for dark mode
+  const [themeToggle, setThemeToggle] = useState(false);
+
+  // Listen for the toggle check/uncheck to toggle the dark theme
+  const toggleChange = (ev: ToggleCustomEvent) => {
+    toggleDarkTheme(ev.detail.checked);
+  };
+
+  // Add or remove the "dark" class on the document body
+  const toggleDarkTheme = (shouldAdd: boolean) => {
+    document.body.classList.toggle('dark', shouldAdd);
+    console.log(shouldAdd);
+  };
+
+  // Check/uncheck the toggle and update the theme based on isDark
+  const initializeDarkTheme = (isDark: boolean) => {
+    setThemeToggle(isDark);
+    toggleDarkTheme(isDark);
+  };
+
+
+  useEffect(() => {
+    // Use matchMedia to check the user preference
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+    // Initialize the dark theme based on the initial
+    // value of the prefers-color-scheme media query
+    initializeDarkTheme(prefersDark.matches);
+
+    // Listen for changes to the prefers-color-scheme media query
+    prefersDark.addEventListener('change', (mediaQuery) => initializeDarkTheme(mediaQuery.matches));
+  }, []);
+
+  
   const [isInMode, setMode] = useState(0);
   const initEditorCalled = useRef(false);
   
@@ -111,7 +146,11 @@ const Home: React.FC = () => {
             <IonButton fill="outline" onClick={() => setMode(2)}>Alt Script</IonButton>
             {/* This input element should be hidden, we are just using it as a way to upload. */}
             <input type='file' id='file' ref={inputFile} style={{display: 'none'}} onChange={() => asyncLoadNote()}/>
-
+            <IonItem>
+            <IonToggle checked={themeToggle} onIonChange={toggleChange} justify="space-between">
+              Dark Mode
+            </IonToggle>
+            </IonItem>
 
             {/* This is the actual button that does the input element's job. */}
             <IonButton fill="outline"onClick={() => inputFile.current?.click()}>Load a note</IonButton>
