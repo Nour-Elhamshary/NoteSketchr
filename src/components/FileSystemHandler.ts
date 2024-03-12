@@ -1,6 +1,6 @@
 import { Dialog } from '@capacitor/dialog';
 import { Directory, Encoding, FileInfo, Filesystem } from '@capacitor/filesystem';
-
+import EditorJS, { OutputBlockData } from '@editorjs/editorjs';
 
 //Constants.
 const NOTES_DIR = 'notesketchr';
@@ -9,7 +9,7 @@ const MainDirectory = Directory.Documents;
 //Arrays
 let notesList: FileInfo[] = [];
 
-export async function loadNoteInString(text:string, editor:any) {
+export async function loadNoteInString(text:string, editor:EditorJS) {
     let tempString = text;
     let tempString2: string[];
     var editorElement = document.getElementById("editorjs");
@@ -48,12 +48,12 @@ export async function loadNoteInString(text:string, editor:any) {
  */
 
 export async function loadNote(noteFileName:any): Promise<void>;
-export async function loadNote(noteFileName:any, editor:any): Promise<void>;
-export async function loadNote(noteFileName: any, editor?:any){
+export async function loadNote(noteFileName:any, editor:EditorJS): Promise<void>;
+export async function loadNote(noteFileName: any, editor?:EditorJS){
     //Temporary strings to store in any value from them.
     let tempString = "";
-    let tempString2: string[];
-
+    let tempString2: OutputBlockData<string, any>[];
+    let finalTemp: OutputBlockData<string, any>;
     //If the file name is actually available, then execute these
     //sets of statements.
     if (noteFileName != undefined) {
@@ -71,25 +71,8 @@ export async function loadNote(noteFileName: any, editor?:any){
     if (editorElement != null && editor != undefined) {
         //If yes, then we assume that it is a markdown file,
         //so we parse it to JSON.
-        tempString2 = MarkdownToJSON(tempString);
-        //First, delete everything that may be in the editor itself.
-        //Delete from last block to first block.
-        for (var i = editor.blocks.getBlocksCount() -1 ; i >= 0; i--) {
-            await editor.blocks.delete(i);
-        }
-        
-        //And then add in the new information one block at a time.
-        for (var i = 0; i < tempString2.length; i++) {
-            //If any markdown headers are found, then
-            if (tempString2[i].includes("#")) {
-                await editor.blocks.insert("header",{
-                    text: tempString2[i].replace(/\#/gm, ""),
-                    level: tempString2[i].split(/\#/g).length - 1
-                })
-                continue;
-            }
-            await editor.blocks.insert("paragraph", {text: tempString2[i]}) 
-        }
+        tempString2 = MarkdownToJSON(tempString);     
+        editor.blocks.render({"blocks":tempString2});
     }
 }
 
@@ -181,7 +164,7 @@ export function JSONToMarkdown(JSONData: any): string {
 
     //Deal with other HTML symbols, like spaces and line breaks if necessary.
     outputString = outputString.replace(/&nbsp;/g, " ");
-
+ 
     console.log(outputString);
     return outputString;
 
@@ -208,7 +191,54 @@ export function MarkdownToJSON(StringData: string): any {
 
     console.log(data);
     let strings = data.split(/\n/);
-    return strings;
+
+    //Then try to convert it into a JSON object.
+    //Declare an array of blocks to insert in json.
+    let blocks: Object[] = [];
+
+    interface headerObject {
+        type: string
+        data: {
+            text: string,
+            level: number
+        }
+    }
+
+    interface paragraphObject {
+        type: string
+        data: {
+            text: string
+        }
+    }
+
+    for (var i = 0; i < strings.length; i++) {
+        //If any markdown headers are found, then
+        if (strings[i].includes("#")) {
+                let tempHeaderObj : headerObject = {
+                    type: "header",
+                    data: {
+                        text: strings[i].replace(/\#/gm, ""),
+                        level: strings[i].split(/\#/g).length - 1
+                    }
+                }
+                blocks[i] = tempHeaderObj;
+                console.log(blocks[i]);
+            
+        }
+        else {
+            let tempParaObj : paragraphObject = {
+                type: "paragraph",
+                data: {
+                    text: strings[i]
+                }
+            }
+
+        blocks[i] = tempParaObj;
+
+    }
+    }
+
+    return blocks;
 }
  
 /* 
