@@ -8,15 +8,11 @@ import type { ToggleCustomEvent } from '@ionic/react';
 import '../theme/variables.css'
 import { menuController } from '@ionic/core/components';
 import '../components/FileSystemHandler'
-import { loadNotesList, loadNote, saveSameFile, getNotesList, SaveFile, loadNoteInString } from '../components/FileSystemHandler';
+import { loadNotesList, loadNote, saveSameFile, getNotesList, SaveFile, loadNoteInString, UpdateMarkdownFormatting } from '../components/FileSystemHandler';
 import EditorJS, { InlineToolConstructable } from '@editorjs/editorjs';
 
 //Create an interface for the context
-interface EC {
-  altEditor: any
-}
 
-export const EditorContext = createContext<EC>({} as EC);
 
 const Home: React.FC = () => {
   /*Set the one usestate for editor mode. It's integer for enumeration purposes. 
@@ -162,6 +158,10 @@ const Home: React.FC = () => {
             <IonButton fill="outline" onClick={() => {
               saveSameFile(noteChild.current?.textContent, currentNoteIndex)}
             }>Save the current note</IonButton>
+
+            <IonButton fill="outline" onClick={() => {
+              UpdateMarkdownFormatting(altEditor)}
+            }>Update previous block</IonButton>
 
         </div>
         </IonContent>

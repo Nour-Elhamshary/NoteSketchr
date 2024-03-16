@@ -196,6 +196,7 @@ export function MarkdownToJSON(StringData: string): any {
     //Declare an array of blocks to insert in json.
     let blocks: Object[] = [];
 
+    //Provide interfaces so that it converts to specific json object
     interface headerObject {
         type: string
         data: {
@@ -241,6 +242,46 @@ export function MarkdownToJSON(StringData: string): any {
     return blocks;
 }
  
+/*
+    TODO - Function that updates the formatting in real time
+    Basically when the user presses enter, it checks on the 
+    previous block of the editor. If it has Markdown formatted
+    text, then it would try to update the previous block so that
+    it has its new format.  
+*/
+
+export async function UpdateMarkdownFormatting(editor: EditorJS){
+    //Check if the editor even exists:
+    var editorElement = document.getElementById("editorjs");
+    if (editorElement != null && editor != undefined) {
+        //Afterwards, get the previous block.
+        const previousBlockIndex = editor.blocks.getCurrentBlockIndex()-1;
+        //Then we set the string that we need.
+        var previousBlockString;
+        var previousBlockId;
+        let noteString = await editor.save().then((outputData: any) => {
+            //console.log('Article data: ', outputData)
+            previousBlockString = outputData;
+            previousBlockId = previousBlockString.blocks[previousBlockIndex].id;
+          }).catch((error: any) => {
+            console.log('Saving failed: ', error)
+          });
+
+        //Then convert with proper formatting.
+        
+        var temp1 = JSONToMarkdown(previousBlockString);
+        console.log(temp1);
+        var temp2 = MarkdownToJSON(temp1);
+          console.log(temp2);
+        //Finally, update the block back.
+        var finalData = temp2[previousBlockIndex];
+          console.log("The final data is: ", finalData);
+        editor.blocks.delete(previousBlockIndex);
+        editor.blocks.insert(finalData.type, finalData.data, {}, previousBlockIndex);
+        console.log(temp2);
+    }
+}
+
 /* 
 Saving file. It should check on which platform we are working on, and then execute the saving in a different way.
 For now, we are going to deal through mobile, which means we get to deal with Capacitor's filesystem functions.
