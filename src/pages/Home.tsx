@@ -3,13 +3,15 @@ import './Home.css';
 import { createContext, useState, useRef, useEffect } from 'react';
 import Editor from '../components/Editor';
 import Header from '@editorjs/header';
+import ImageTool from '@editorjs/image';
 import {FileInfo } from '@capacitor/filesystem';
 import type { ToggleCustomEvent } from '@ionic/react';
 import '../theme/variables.css'
 import { menuController } from '@ionic/core/components';
 import '../components/FileSystemHandler'
-import { loadNotesList, loadNote, saveSameFile, getNotesList, SaveFile, loadNoteInString, UpdateMarkdownFormatting } from '../components/FileSystemHandler';
+import { loadNotesList, loadNote, saveSameFile, getNotesList, SaveFile, loadNoteInString } from '../components/FileSystemHandler';
 import EditorJS, { InlineToolConstructable } from '@editorjs/editorjs';
+import SimpleImage from 'simple-image-editorjs'
 
 //Create an interface for the context
 
@@ -54,7 +56,14 @@ const Home: React.FC = () => {
 
     // Listen for changes to the prefers-color-scheme media query
     prefersDark.addEventListener('change', (mediaQuery) => initializeDarkTheme(mediaQuery.matches));
-  }, []);
+  
+    var editorElement = document.getElementById("editorjs");
+    if (editorElement != null && altEditor != undefined) {
+    editorElement.addEventListener("keyup", function (e) {
+      //if (e.code == "Enter") 
+  })
+  }
+}, []);
 
   
   const [isInMode, setMode] = useState(0);
@@ -69,7 +78,12 @@ const Home: React.FC = () => {
     holder:'editorjs',
 
     tools: {
-      header: Header
+      header: Header,
+      image: SimpleImage,
+    },
+
+    onChange: (api, event) => {
+      //UpdateMDFormatting(altEditor);
     }
   }));
 
@@ -160,7 +174,7 @@ const Home: React.FC = () => {
             }>Save the current note</IonButton>
 
             <IonButton fill="outline" onClick={() => {
-              UpdateMarkdownFormatting(altEditor)}
+              }
             }>Update previous block</IonButton>
 
         </div>

@@ -1,6 +1,6 @@
 import { Dialog } from '@capacitor/dialog';
 import { Directory, Encoding, FileInfo, Filesystem } from '@capacitor/filesystem';
-import EditorJS, { OutputBlockData } from '@editorjs/editorjs';
+import EditorJS, { BlockAPI, OutputBlockData } from '@editorjs/editorjs';
 
 //Constants.
 const NOTES_DIR = 'notesketchr';
@@ -16,7 +16,7 @@ export async function loadNoteInString(text:string, editor:EditorJS) {
     if (editorElement != null && editor != undefined) {
         //If yes, then we assume that it is a markdown file,
         //so we parse it to JSON.
-        tempString2 = MarkdownToJSON(tempString);
+        tempString2 = await MarkdownToJSON(tempString);
         //First, delete everything that may be in the editor itself.
         //Delete from last block to first block.
         for (var i = editor.blocks.getBlocksCount() -1 ; i >= 0; i--) {
@@ -71,7 +71,7 @@ export async function loadNote(noteFileName: any, editor?:EditorJS){
     if (editorElement != null && editor != undefined) {
         //If yes, then we assume that it is a markdown file,
         //so we parse it to JSON.
-        tempString2 = MarkdownToJSON(tempString);     
+        tempString2 = await MarkdownToJSON(tempString);     
         editor.blocks.render({"blocks":tempString2});
     }
 }
@@ -129,11 +129,13 @@ JSON parsing functions to convert to Markdown and vice versa.
  * @param JSONData json - JSON data provided by the editor.
  * @returns outputString
  */
-export function JSONToMarkdown(JSONData: any): string {
+export async function JSONToMarkdown(JSONData: any): Promise<string> {
     let outputString = "";
 
     console.log(JSONData.blocks);
 
+if (JSONData.blocks != undefined) {
+    //If we are dealing with JSON that has multiple blocks.
     for (let i = 0; i < JSONData.blocks.length; i++) {
         //console.log(JSONData.blocks[i].type);
         switch (JSONData.blocks[i].type) {
@@ -148,11 +150,87 @@ export function JSONToMarkdown(JSONData: any): string {
                 }
                 outputString += " " + JSONData.blocks[i].data.text + '\n';
             break;
+            case 'image':
+                //In markdown, it is supposed to be this: ![Caption][link]
+
+            //Okay, the second one would contain a blob, but we need to convert it to
+            //file that would be normally stored in the area itself.
+
+            //First, we get the file type itself.
+            const blob = await fetch(JSONData.blocks[i].data.url).then(r => r.blob());
+            console.log("Blob: ", blob )
+            let fileType = blob.type.split("/");
+
+            let fileName = "IMAGE_" + new Date().getTime() + "." + fileType[1];
+            const savedFile = await Filesystem.writeFile({
+                directory: MainDirectory,
+                path: `${NOTES_DIR}/${fileName}`,
+                data: blob,
+            }).then(
+                async result => {
+                    outputString += "!["
+                    + JSONData.blocks[i].data.caption
+                    + "]["
+                    + `${NOTES_DIR}/${fileName}`
+                    + "]";
+
+                    console.log(`${NOTES_DIR}/${fileName}`);
+                }
+            )
             default:
             break;
         }
     }
+}
+else {
+    console.log("JSONData: ", JSONData);
 
+        console.log(JSONData.tool);
+        switch (JSONData.tool) {
+            case 'paragraph':
+                outputString += JSONData.data.text + `\n`;
+            break;
+            case 'header':
+                //In markdown, # is used for headers with H1 through H6
+                //being repeated in markdown, so do that.
+                for (let i = 0; i < JSONData.data.level; i++) {
+                    outputString += "#";
+                }
+                outputString += " " + JSONData.data.text + '\n';
+            break;
+            case 'image':
+                //In markdown, it is supposed to be this: ![Caption][link]
+
+            //Okay, the second one would contain a blob, but we need to convert it to
+            //file that would be normally stored in the area itself.
+
+            //First, we get the file type itself.
+            const blob = JSONData.data.url;
+            console.log("Blob: ", blob )
+            let fileType = blob.type.split("/");
+
+            let fileName = "IMAGE_" + new Date().getTime() + "." + fileType[1];
+            const savedFile = await Filesystem.writeFile({
+                directory: MainDirectory,
+                path: `${NOTES_DIR}/${fileName}`,
+                data: blob,
+            }).then(
+                async result => {
+                    outputString += "!["
+                    + JSONData.data.caption
+                    + "]["
+                    + `${NOTES_DIR}/${fileName}`
+                    + "]";
+
+                    console.log(`${NOTES_DIR}/${fileName}`);
+                }
+            )
+            break;
+            default:
+            break;
+        }
+
+}
     //This section is for parsing any JSON areas to Markdown.
     //For bold, ** is used instead of <b> HTML tag, so we replace it.
     outputString = outputString.replace(/<b>/g, "**");
@@ -177,12 +255,14 @@ export function JSONToMarkdown(JSONData: any): string {
  * from Markdown compatible data to JSON compatible for the editor.
  */
 
-export function MarkdownToJSON(StringData: string): any {
+export async function MarkdownToJSON(StringData: string): Promise<any> {
     let data = StringData;
+    console.log("StringData: ", StringData);
     //Replace the bold/italics stuff to HTML tags accordingly.
     //For bold
     data = data.replace(/(\*\*)/gm, "<b>"); //Replace first ** on every word with <b> tag
     data = data.replace(/<b>(?!\b)/gm, "</b>"); //basically, check for the second <b> and then change it to closing tag
+
 
     //Bold should be taken care of, so concentrate on italics.
     data = data.replace(/\*/gm, "<i>");
@@ -212,6 +292,14 @@ export function MarkdownToJSON(StringData: string): any {
         }
     }
 
+    interface imageObject {
+        type: string
+        data: {
+            url: string | Blob
+            caption: string
+        }
+    }
+
     for (var i = 0; i < strings.length; i++) {
         //If any markdown headers are found, then
         if (strings[i].includes("#")) {
@@ -226,6 +314,35 @@ export function MarkdownToJSON(StringData: string): any {
                 console.log(blocks[i]);
             
         }
+        else if (strings[i].includes("![")) {
+            let tempString = strings[i];
+            //First we remove any closing square brackets on that.
+            tempString = tempString.replace(/\]/g, "");
+
+            //Then we remove the ![ part
+            tempString = tempString.replace(/\!\[/g, "");
+
+            //Now, the [ is what provides the split, so... we split it.
+            let tempStringFinal = tempString.split(/\[/g);
+            console.log(tempStringFinal);
+            const pictureContents = await Filesystem.readFile({
+                path: tempStringFinal[1],
+                directory: MainDirectory
+            }
+            )
+
+            if (typeof pictureContents.data != "string") {
+            let tempImageObj : imageObject = {
+                type: "image",
+                data: {
+                    url: URL.createObjectURL(pictureContents.data),
+                    caption: tempStringFinal[0]
+                }
+            }
+            
+            blocks[i] = tempImageObj;
+        }
+        }
         else {
             let tempParaObj : paragraphObject = {
                 type: "paragraph",
@@ -238,7 +355,7 @@ export function MarkdownToJSON(StringData: string): any {
 
     }
     }
-
+    console.log(blocks);
     return blocks;
 }
  
@@ -250,37 +367,36 @@ export function MarkdownToJSON(StringData: string): any {
     it has its new format.  
 */
 
-export async function UpdateMarkdownFormatting(editor: EditorJS){
-    //Check if the editor even exists:
-    var editorElement = document.getElementById("editorjs");
-    if (editorElement != null && editor != undefined) {
-        //Afterwards, get the previous block.
-        const previousBlockIndex = editor.blocks.getCurrentBlockIndex()-1;
-        //Then we set the string that we need.
-        var previousBlockString;
-        var previousBlockId;
-        let noteString = await editor.save().then((outputData: any) => {
-            //console.log('Article data: ', outputData)
-            previousBlockString = outputData;
-            previousBlockId = previousBlockString.blocks[previousBlockIndex].id;
-          }).catch((error: any) => {
-            console.log('Saving failed: ', error)
-          });
+// export async function UpdateMDFormatting(editor: EditorJS) {
+//     var editorElement = document.getElementById("editorjs");
+//     if (editorElement != null && editor != undefined) {
+//         var block: BlockAPI | undefined = editor.blocks.getBlockByIndex(editor.blocks.getCurrentBlockIndex());
+//         if (block != undefined) {
+//             let blockString = await block.save().then((outputData: any) => {
+//                 console.log("Something to test: ",outputData);
+//                 //var temp1 = JSONToMarkdown(outputData);
+//                 //console.log(temp1);
+//                 var temp2 = await MarkdownToJSON(outputData.data.text);
+//                 console.log("Temp2:", temp2);
 
-        //Then convert with proper formatting.
-        
-        var temp1 = JSONToMarkdown(previousBlockString);
-        console.log(temp1);
-        var temp2 = MarkdownToJSON(temp1);
-          console.log(temp2);
-        //Finally, update the block back.
-        var finalData = temp2[previousBlockIndex];
-          console.log("The final data is: ", finalData);
-        editor.blocks.delete(previousBlockIndex);
-        editor.blocks.insert(finalData.type, finalData.data, {}, previousBlockIndex);
-        console.log(temp2);
-    }
-}
+//                 if (outputData.data.text != temp2[0].data.text) {
+//                         if (outputData.tool != temp2[0].type) {
+//                             editor.blocks.convert(outputData.id, "header");
+//                         }
+//                         else
+//                             editor.blocks.update(outputData.id, temp2[0].data);
+                        
+//                     }
+
+                    
+
+
+//             }
+//             )
+//         }
+//     }
+// }
+
 
 /* 
 Saving file. It should check on which platform we are working on, and then execute the saving in a different way.
@@ -308,10 +424,10 @@ export async function SaveFile(noteString:any, editor?:any) {
 
             // Change the noteString to the element that is inside it.
             
-             noteString = await editor.save().then((outputData: any) => {
+             noteString = await editor.save().then(async (outputData: any)  => {
                  //console.log('Article data: ', outputData)
-                 stringToSave = JSONToMarkdown(outputData);
-                 MarkdownToJSON(stringToSave);
+                 stringToSave = await JSONToMarkdown(outputData);
+                 await MarkdownToJSON(stringToSave);
                }).catch((error: any) => {
                  console.log('Saving failed: ', error)
                });
