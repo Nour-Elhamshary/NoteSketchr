@@ -3,6 +3,7 @@ import "./Editor.css"
 import MarkdownDisplay from "./MarkdownDisplay";
 import Markdown from 'react-markdown'
 import EditorJS from '@editorjs/editorjs';
+import TodoList from "./todolist";
 
 
 
@@ -36,7 +37,7 @@ export default function Editor({mode, stringOfNote, checkNoteLoad, forwardedRef}
             {
                 mode==1 && (
                     <div className="output">
-                    <MarkdownDisplay markdown={getContent}/>
+                    <TodoList />
                     </div>
                 )
             }

@@ -51,28 +51,52 @@ export async function loadNote(noteFileName:any): Promise<void>;
 export async function loadNote(noteFileName:any, editor:EditorJS): Promise<void>;
 export async function loadNote(noteFileName: any, editor?:EditorJS){
     //Temporary strings to store in any value from them.
-    let tempString = "";
+    const allowedFileTypes = ["json", "md"];
+    
+    let currentFileType = "";
+    let tempString:any = "";
     let tempString2: OutputBlockData<string, any>[];
     let finalTemp: OutputBlockData<string, any>;
     //If the file name is actually available, then execute these
     //sets of statements.
+
+    console.log(noteFileName);
     if (noteFileName != undefined) {
         //Attempt to load the file itself, and store the contents to tempString
         const contents = await Filesystem.readFile({
             path: `${NOTES_DIR}/${noteFileName}`,
             directory: MainDirectory,
             encoding: Encoding.UTF8
-        }).then(result => {tempString = result.data.toString()})
+        }).then(result => {
+            console.log(result.data);
+            tempString = result.data;
+            currentFileType = noteFileName.split('.').pop();
+            console.log("The file type is: " + currentFileType);
+        
+    })
     }
+
+    
 
     //Then check if both the div that stores the editor exists alongside
     //an instance of the editor.
     var editorElement = document.getElementById("editorjs");
-    if (editorElement != null && editor != undefined) {
+    if (editorElement != null && editor != undefined && tempString != null) {
         //If yes, then we assume that it is a markdown file,
         //so we parse it to JSON.
-        tempString2 = await MarkdownToJSON(tempString);     
-        editor.blocks.render({"blocks":tempString2});
+        switch (currentFileType) {
+            case "json":
+                editor.blocks.render(JSON.parse(JSON.stringify(tempString)))
+                break;
+            case "md":
+                tempString2 = await MarkdownToJSON(tempString);  
+                editor.blocks.render({"blocks":tempString2});
+                break;
+            default:
+                console.log("Nothing!!");
+                break;
+        }
+           
     }
 }
 
@@ -405,29 +429,39 @@ For now, we are going to deal through mobile, which means we get to deal with Ca
 
 /**
  * Saves the note externally to the specified folder that is dictated by the program.
- * @param noteString - any string to insert to an editor (OLD, WILL BE REMOVED SOON)  
  * @param editor - An instance of the editor.
  */
 
-export async function SaveFile(noteString:any): Promise<any>;
-export async function SaveFile(noteString:any, editor:any): Promise<any>;
-export async function SaveFile(noteString:any, editor?:any) {
+
+export async function SaveFile(editor:any, fileType:string) {
     console.log("Check that the function saveFile() even works.");
 
+        //Variables to smooth out the saving experience
+        let noteString = null;
         let stringToSave = null;
-        //Temporary injection
-        //Check if there's an element with id "editorjs"
+
+        
+        //Check if there's an element with id "editorjs".
+        //Double checking as to REALLY make sure the editor instance is here.
         var editorElement = document.getElementById("editorjs");
         console.log(editorElement);
         console.log(editor);
         if (editorElement != null && editor != undefined) {
-
-            // Change the noteString to the element that is inside it.
-            
+            //Switch statement! Check the file types.
+            console.log("On the switch statement now.");
              noteString = await editor.save().then(async (outputData: any)  => {
+                switch (fileType) {
+                    case 'json':
+                        stringToSave = outputData;
+                        break;
+                    case 'md':
+                        stringToSave = await JSONToMarkdown(outputData);
+                        break;
+                    default:
+                        throw new Error('Error: Didn\'t choose any format, so will not save.');
+                }
                  //console.log('Article data: ', outputData)
-                 stringToSave = await JSONToMarkdown(outputData);
-                 await MarkdownToJSON(stringToSave);
+                 
                }).catch((error: any) => {
                  console.log('Saving failed: ', error)
                });
@@ -444,8 +478,8 @@ export async function SaveFile(noteString:any, editor?:any) {
                title: 'Set name',
                message: `Set the name of the note. If cancelled, it'll be set in a random name.`,
          })
-         if (cancelled) fileName = new Date().getTime() + '.md';
-         else fileName = value + '.md';
+         if (cancelled) fileName = new Date().getTime() + '.' + fileType;
+         else fileName = value + '.' + fileType;
 
 
          const savedFile = await Filesystem.writeFile({

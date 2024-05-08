@@ -166,9 +166,13 @@ const Home: React.FC = () => {
             <IonButton fill="outline"onClick={() => inputFile.current?.click()}>Load a note</IonButton>
             
             <IonButton fill="outline" onClick={() => {
-              SaveFile(noteChild.current?.textContent, altEditor)}
-            }>Save a note</IonButton>
+              SaveFile(altEditor, "json")}
+            }>Save a note in JSON</IonButton>
             
+            <IonButton fill="outline" onClick={() => {
+              SaveFile(altEditor, "md")}
+            }>Save a note in MD</IonButton>
+
             <IonButton fill="outline" onClick={() => {
               saveSameFile(noteChild.current?.textContent, currentNoteIndex)}
             }>Save the current note</IonButton>
