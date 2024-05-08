@@ -32,6 +32,8 @@ import { trashBin } from 'ionicons/icons';
 let nextId = 0;
 let oldIdValue: number|null = null;
 let tempString = "";
+
+
 export default function TodoList() {
    
     const todoListItems: string[] = [];
@@ -68,11 +70,59 @@ export default function TodoList() {
             listState.filter(item => item.id !== id)
         )
     }
+
+    /*
+        We want the JSON object to look like this:
+        "data": {
+            "todoItems": [
+                "test1",
+                "test2",
+                "test3"
+            ]
+        }
+    
+    */
+    function saveList(arrayToSave:Array<{id: number, content: string}>) {
+        var jsonObj = {
+            "todoItems":[
+                ""
+            ]
+        };
+
+        for (var i = 0; i < arrayToSave.length; i++) {
+            jsonObj.todoItems[i] = arrayToSave[i].content;
+        }
+
+        console.log(JSON.stringify(jsonObj));
+    }
+
+    function loadList() {
+        //Logically, it should load a file and then does that, but for
+        //testing purposes, we just do a random object for now.
+        var jsonObj = {
+            "todoItems":[
+                "Hi! If you see this",
+                "Then that means that the loading",
+                "Is fully working!"
+            ]
+        };
+
+        var tempArray: Array<{id: number, content: string}> = new Array<{id: number, content: string}>();
+
+        for (var i = 0; i < jsonObj.todoItems.length; i++) {
+            tempArray.push({ id: (i), content: (jsonObj.todoItems[i]) });
+        }
+
+        setListState(tempArray);
+    }
+
     return (
     <>  
     <IonItem>  
         <IonInput onIonInput={(event) => getTempString(event)} placeholder="Insert a task here."/>
         <IonButton onClick={() => addInList(tempString)}>+</IonButton>
+        <IonButton onClick={() => saveList(listState)}>Save</IonButton>
+        <IonButton onClick={() => loadList()}>Load</IonButton>
     </IonItem>
     <IonList>
 
