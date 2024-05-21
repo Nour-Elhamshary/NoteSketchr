@@ -8,6 +8,7 @@ import {FileInfo } from '@capacitor/filesystem';
 import type { ToggleCustomEvent } from '@ionic/react';
 import '../theme/variables.css'
 import { menuController } from '@ionic/core/components';
+import ToDoListEJS from '../components/EditorJSToDoList'
 import '../components/FileSystemHandler'
 import { loadNotesList, loadNote, saveSameFile, getNotesList, SaveFile, loadNoteInString } from '../components/FileSystemHandler';
 import EditorJS, { InlineToolConstructable } from '@editorjs/editorjs';
@@ -80,6 +81,9 @@ const Home: React.FC = () => {
     tools: {
       header: Header,
       image: SimpleImage,
+      todolist: {
+        class: ToDoListEJS
+      }
     },
 
     onChange: (api, event) => {
