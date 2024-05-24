@@ -26,6 +26,7 @@
 import React, { useState } from 'react';
 import { IonButton, IonItem, IonLabel, IonList, IonIcon, IonInput } from '@ionic/react';
 import { trashBin } from 'ionicons/icons';
+import {flushData, getData, getSavedData, returnData, returnSavedData} from "./EditorJSToDoIntermediary";
 
 //First, we add in the string array
 
@@ -34,14 +35,30 @@ let oldIdValue: number|null = null;
 let tempString = "";
 
 
+
+
 export default function TodoList() {
-   
-    const todoListItems: string[] = [];
+
     const [listState, setListState] = useState(Array<{id: number, content: string}>);
 
     const getTempString = (ev: Event) => {
         tempString = (ev.target as HTMLInputElement).value;
     }
+
+
+    var tempData = returnData();
+    var tempData2 = returnSavedData();
+    console.log("tempTodoData before the fact: " + tempData.data.todoItems);
+    console.log("tempSavedTodoData before the fact: " + tempData2.data.todoItems);
+
+    
+
+    if ((tempData != null || tempData != undefined) && (listState == null || listState == undefined || listState.length == 0)) {
+        console.log("tempTodoData before we check on the data: " + tempData.data.todoItems);
+        if (tempData.data.todoItems.length > 0) loadList();
+        console.log("tempTodoData after the fact: " + tempData.data.todoItems);
+    }
+
 
     function addInList(text:string) {
         console.log("We should be adding something in the list!");
@@ -60,6 +77,12 @@ export default function TodoList() {
         ]);
         nextId++;
         console.log("The nextId is:" + valueToSet);
+        console.log("The list state after adding: " + listState);
+        saveList([
+            ...listState,
+            {id: valueToSet, content: text}
+        ]);
+  
     }
 
     function removeInList(id:number) {
@@ -69,6 +92,8 @@ export default function TodoList() {
         setListState(
             listState.filter(item => item.id !== id)
         )
+
+        saveList(listState.filter(item => item.id !== id));
     }
 
     /*
@@ -82,40 +107,57 @@ export default function TodoList() {
         }
     
     */
-    function saveList(arrayToSave:Array<{id: number, content: string}>) {
-        var jsonObj = {
-            "todoItems":[
-                ""
-            ]
-        };
 
-        for (var i = 0; i < arrayToSave.length; i++) {
-            jsonObj.todoItems[i] = arrayToSave[i].content;
-        }
-
-        console.log(JSON.stringify(jsonObj));
-    }
+   
 
     function loadList() {
         //Logically, it should load a file and then does that, but for
         //testing purposes, we just do a random object for now.
-        var jsonObj = {
-            "todoItems":[
-                "Hi! If you see this",
-                "Then that means that the loading",
-                "Is fully working!"
-            ]
-        };
+        // var jsonObj = {
+        //     "todoItems":[
+        //         "Hi! If you see this",
+        //         "Then that means that the loading",
+        //         "Is fully working!"
+        //     ]
+        // };
 
+        let jsonObj = returnData();
+        console.log("We are trying to loadList() from: " + JSON.stringify(jsonObj));
         var tempArray: Array<{id: number, content: string}> = new Array<{id: number, content: string}>();
 
-        for (var i = 0; i < jsonObj.todoItems.length; i++) {
-            tempArray.push({ id: (i), content: (jsonObj.todoItems[i]) });
+        for (var i = 0; i < jsonObj.data.todoItems.length; i++) {
+            tempArray.push({ id: (i), content: (jsonObj.data.todoItems[i]) });
         }
 
         setListState(tempArray);
+        nextId += tempArray.length;
+
+        flushData();
+
     }
 
+
+
+    function convertListToJSON(arrayToSave:Array<{id: number, content: string}>) {
+        interface todoItemsData {
+            data: {
+            "todoItems":string[]
+        }
+        }
+        var jsonObj:todoItemsData={data:{todoItems:[]}};
+
+        for (var i = 0; i < arrayToSave.length; i++) {
+            jsonObj.data.todoItems[i] = arrayToSave[i].content;
+        }
+
+        return jsonObj;
+    }
+    function saveList(arrayToSave:Array<{id: number, content: string}>) {
+        
+        var jsonObj = convertListToJSON(arrayToSave);
+        console.log(JSON.stringify(jsonObj));
+        getSavedData(jsonObj);
+    }
     return (
     <>  
     <IonItem>  

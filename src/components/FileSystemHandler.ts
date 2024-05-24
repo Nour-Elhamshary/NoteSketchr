@@ -1,6 +1,7 @@
 import { Dialog } from '@capacitor/dialog';
 import { Directory, Encoding, FileInfo, Filesystem } from '@capacitor/filesystem';
 import EditorJS, { BlockAPI, OutputBlockData } from '@editorjs/editorjs';
+import {getData} from "./EditorJSToDoIntermediary";
 
 //Constants.
 const NOTES_DIR = 'notesketchr';
@@ -84,9 +85,11 @@ export async function loadNote(noteFileName: any, editor?:EditorJS){
     if (editorElement != null && editor != undefined && tempString != null) {
         //If yes, then we assume that it is a markdown file,
         //so we parse it to JSON.
+
+        let jsonTempObj = JSON.parse(JSON.stringify(tempString));
         switch (currentFileType) {
             case "json":
-                editor.blocks.render(JSON.parse(JSON.stringify(tempString)))
+                editor.blocks.render(jsonTempObj)
                 break;
             case "md":
                 tempString2 = await MarkdownToJSON(tempString);  
@@ -96,8 +99,13 @@ export async function loadNote(noteFileName: any, editor?:EditorJS){
                 console.log("Nothing!!");
                 break;
         }
-           
+     
+        console.log("Finding the thing: " + JSON.stringify(jsonTempObj.blocks.find((element:any) => element.type === "todolist").data));
+        getData(jsonTempObj.blocks.find((element:any) => element.type === "todolist").data);
+        
     }
+
+
 }
 
 /**

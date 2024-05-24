@@ -2,14 +2,15 @@
 import { BlockTool } from '@editorjs/editorjs';
 import TodoList from './todolist';
 import { createRoot } from 'react-dom/client';
-
+import {returnSavedData} from "./EditorJSToDoIntermediary";
 
 
 export default class ToDoListEJS implements BlockTool{
     divNode = document.createElement("div");
     _container;
 
-    constructor() {
+
+    constructor({data}:any) {
         this._container = createRoot(this.divNode);
     }
 
@@ -22,7 +23,9 @@ export default class ToDoListEJS implements BlockTool{
 
 
     save(){
-        return "test";
+        console.log("This should be ONLY in the save function, so if it works: it works there.");
+        console.log(returnSavedData());
+        return returnSavedData();
     }
 
 
