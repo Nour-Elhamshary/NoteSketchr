@@ -287,10 +287,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/helper-string-parser@npm:^7.24.6":
+  version: 7.24.6
+  resolution: "@babel/helper-string-parser@npm:7.24.6"
+  checksum: 10c0/95115bf676e92c4e99166395649108d97447e6cabef1fabaec8cdbc53a43f27b5df2268ff6534439d405bc1bd06685b163eb3b470455bd49f69159dada414145
+  languageName: node
+  linkType: hard
+
 "@babel/helper-validator-identifier@npm:^7.22.20, @babel/helper-validator-identifier@npm:^7.24.5":
   version: 7.24.5
   resolution: "@babel/helper-validator-identifier@npm:7.24.5"
   checksum: 10c0/05f957229d89ce95a137d04e27f7d0680d84ae48b6ad830e399db0779341f7d30290f863a93351b4b3bde2166737f73a286ea42856bb07c8ddaa95600d38645c
+  languageName: node
+  linkType: hard
+
+"@babel/helper-validator-identifier@npm:^7.24.6":
+  version: 7.24.6
+  resolution: "@babel/helper-validator-identifier@npm:7.24.6"
+  checksum: 10c0/d29d2e3fca66c31867a009014169b93f7bc21c8fc1dd7d0b9d85d7a4000670526ff2222d966febb75a6e12f9859a31d1e75b558984e28ecb69651314dd0a6fd1
   languageName: node
   linkType: hard
 
@@ -1350,7 +1364,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/types@npm:^7.0.0, @babel/types@npm:^7.20.7, @babel/types@npm:^7.22.15, @babel/types@npm:^7.22.5, @babel/types@npm:^7.23.0, @babel/types@npm:^7.24.0, @babel/types@npm:^7.24.5, @babel/types@npm:^7.4.4, @babel/types@npm:^7.8.3":
+"@babel/types@npm:^7.0.0, @babel/types@npm:^7.20.7, @babel/types@npm:^7.22.15, @babel/types@npm:^7.22.5, @babel/types@npm:^7.23.0, @babel/types@npm:^7.24.0, @babel/types@npm:^7.24.5, @babel/types@npm:^7.4.4":
   version: 7.24.5
   resolution: "@babel/types@npm:7.24.5"
   dependencies:
@@ -1358,6 +1372,26 @@ __metadata:
     "@babel/helper-validator-identifier": "npm:^7.24.5"
     to-fast-properties: "npm:^2.0.0"
   checksum: 10c0/e1284eb046c5e0451b80220d1200e2327e0a8544a2fe45bb62c952e5fdef7099c603d2336b17b6eac3cc046b7a69bfbce67fe56e1c0ea48cd37c65cb88638f2a
+  languageName: node
+  linkType: hard
+
+"@babel/types@npm:^7.8.3":
+  version: 7.24.6
+  resolution: "@babel/types@npm:7.24.6"
+  dependencies:
+    "@babel/helper-string-parser": "npm:^7.24.6"
+    "@babel/helper-validator-identifier": "npm:^7.24.6"
+    to-fast-properties: "npm:^2.0.0"
+  checksum: 10c0/1d94d92d97ef49030ad7f9e14cfccfeb70b1706dabcaa69037e659ec9d2c3178fb005d2088cce40d88dfc1306153d9157fe038a79ea2be92e5e6b99a59ef80cc
+  languageName: node
+  linkType: hard
+
+"@capacitor-community/speech-recognition@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "@capacitor-community/speech-recognition@npm:5.1.0"
+  peerDependencies:
+    "@capacitor/core": ^5.0.0
+  checksum: 10c0/dcc8824da57b37c328aac2d24790744bf42d260b608a9a4cedefadd6c82a21f725943552f6e8aa7d90e4046a6e25a62790b12c9ef7b6ff5299bd944a7ea317fc
   languageName: node
   linkType: hard
 
@@ -2418,6 +2452,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/dom-speech-recognition@npm:*":
+  version: 0.0.4
+  resolution: "@types/dom-speech-recognition@npm:0.0.4"
+  checksum: 10c0/0320bc864360c4e0833574438095b8b5c2dff5086ced72e71a9a089a49c93ad0162de70d6f36e1003bb4462e18abbfce16a23fba9022e92fa65234d031f1469b
+  languageName: node
+  linkType: hard
+
 "@types/editorjs__header@npm:^2.6.3":
   version: 2.6.3
   resolution: "@types/editorjs__header@npm:2.6.3"
@@ -2570,6 +2611,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-speech-recognition@npm:^3.9.5":
+  version: 3.9.5
+  resolution: "@types/react-speech-recognition@npm:3.9.5"
+  dependencies:
+    "@types/dom-speech-recognition": "npm:*"
+  checksum: 10c0/1765821eb7f53196853b5aa668e86060a822cc83c75624b786324851d54082e7d83deb9a141f0f69f3b1e0cff2045024351294616627a5d66f6ac47212a0d44f
+  languageName: node
+  linkType: hard
+
 "@types/react@npm:*, @types/react@npm:^18.0.27":
   version: 18.3.1
   resolution: "@types/react@npm:18.3.1"
@@ -2577,6 +2627,13 @@ __metadata:
     "@types/prop-types": "npm:*"
     csstype: "npm:^3.0.2"
   checksum: 10c0/18d856c12a4ec93f3cda2d58ef3d77a9480818afd3af895f812896fb82cfca1f35a692ab1add4ce826a4eb58a071624c7d1c8c6c4ccfb81c100d2916dc607614
+  languageName: node
+  linkType: hard
+
+"@types/regenerator-runtime@npm:^0.13.5":
+  version: 0.13.5
+  resolution: "@types/regenerator-runtime@npm:0.13.5"
+  checksum: 10c0/95bb8e208ecadb2d9af0d3d527148d6f5a69e0c33597b26fb83282128d99282538471c4d4ad5c75aa78bb31c0c9ba3e1280eb952f48d24c89bea0517b1426b48
   languageName: node
   linkType: hard
 
@@ -2768,6 +2825,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "NoteSketchr@workspace:."
   dependencies:
+    "@capacitor-community/speech-recognition": "npm:^5.1.0"
     "@capacitor/android": "npm:^6.0.0"
     "@capacitor/app": "npm:^6.0.0"
     "@capacitor/cli": "npm:^6.0.0"
@@ -2794,10 +2852,13 @@ __metadata:
     "@types/react-dom": "npm:^18.0.10"
     "@types/react-router": "npm:^5.1.20"
     "@types/react-router-dom": "npm:^5.3.3"
+    "@types/react-speech-recognition": "npm:^3.9.5"
+    "@types/regenerator-runtime": "npm:^0.13.5"
     "@types/wicg-file-system-access": "npm:^2023.10.5"
     "@vitejs/plugin-legacy": "npm:^5.0.0"
     "@vitejs/plugin-react": "npm:^4.0.1"
     cordova-plugin-file-opener2: "npm:^4.0.0"
+    core-js: "npm:^3.37.1"
     cypress: "npm:^13.5.0"
     eslint: "npm:^8.56.0"
     eslint-plugin-react: "npm:^7.32.2"
@@ -2813,6 +2874,8 @@ __metadata:
     react-markdown: "npm:^9.0.1"
     react-router: "npm:^5.3.4"
     react-router-dom: "npm:^5.3.4"
+    react-speech-recognition: "npm:^3.10.0"
+    regenerator-runtime: "npm:^0.14.1"
     simple-image-editorjs: "npm:^1.4.0"
     terser: "npm:^5.4.0"
     typescript: "npm:^5.1.6"
@@ -3786,10 +3849,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:^3.37.0":
-  version: 3.37.0
-  resolution: "core-js@npm:3.37.0"
-  checksum: 10c0/7e00331f346318ca3f595c08ce9e74ddae744715aef137486c1399163afd79792fb94c3161280863adfdc3e30f8026912d56bd3036f93cacfc689d33e185f2ee
+"core-js@npm:^3.37.0, core-js@npm:^3.37.1":
+  version: 3.37.1
+  resolution: "core-js@npm:3.37.1"
+  checksum: 10c0/440eb51a7a39128a320225fe349f870a3641b96c9ecd26470227db730ef8c161ea298eaea621db66ec0ff622a85299efb4e23afebf889c0a1748616102307675
   languageName: node
   linkType: hard
 
@@ -5149,17 +5212,17 @@ __metadata:
   linkType: hard
 
 "glob@npm:^10.2.2, glob@npm:^10.3.10":
-  version: 10.3.12
-  resolution: "glob@npm:10.3.12"
+  version: 10.4.1
+  resolution: "glob@npm:10.4.1"
   dependencies:
     foreground-child: "npm:^3.1.0"
-    jackspeak: "npm:^2.3.6"
-    minimatch: "npm:^9.0.1"
-    minipass: "npm:^7.0.4"
-    path-scurry: "npm:^1.10.2"
+    jackspeak: "npm:^3.1.2"
+    minimatch: "npm:^9.0.4"
+    minipass: "npm:^7.1.2"
+    path-scurry: "npm:^1.11.1"
   bin:
     glob: dist/esm/bin.mjs
-  checksum: 10c0/f60cefdc1cf3f958b2bb5823e1b233727f04916d489dc4641d76914f016e6704421e06a83cbb68b0cb1cb9382298b7a88075b844ad2127fc9727ea22b18b0711
+  checksum: 10c0/77f2900ed98b9cc2a0e1901ee5e476d664dae3cd0f1b662b8bfd4ccf00d0edc31a11595807706a274ca10e1e251411bbf2e8e976c82bed0d879a9b89343ed379
   languageName: node
   linkType: hard
 
@@ -5996,16 +6059,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jackspeak@npm:^2.3.6":
-  version: 2.3.6
-  resolution: "jackspeak@npm:2.3.6"
+"jackspeak@npm:^3.1.2":
+  version: 3.1.2
+  resolution: "jackspeak@npm:3.1.2"
   dependencies:
     "@isaacs/cliui": "npm:^8.0.2"
     "@pkgjs/parseargs": "npm:^0.11.0"
   dependenciesMeta:
     "@pkgjs/parseargs":
       optional: true
-  checksum: 10c0/f01d8f972d894cd7638bc338e9ef5ddb86f7b208ce177a36d718eac96ec86638a6efa17d0221b10073e64b45edc2ce15340db9380b1f5d5c5d000cbc517dc111
+  checksum: 10c0/5f1922a1ca0f19869e23f0dc4374c60d36e922f7926c76fecf8080cc6f7f798d6a9caac1b9428327d14c67731fd551bb3454cb270a5e13a0718f3b3660ec3d5d
   languageName: node
   linkType: hard
 
@@ -6905,7 +6968,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:^9.0.1":
+"minimatch@npm:^9.0.4":
   version: 9.0.4
   resolution: "minimatch@npm:9.0.4"
   dependencies:
@@ -6995,10 +7058,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minipass@npm:^5.0.0 || ^6.0.2 || ^7.0.0, minipass@npm:^7.0.2, minipass@npm:^7.0.3, minipass@npm:^7.0.4":
+"minipass@npm:^5.0.0 || ^6.0.2 || ^7.0.0":
   version: 7.1.0
   resolution: "minipass@npm:7.1.0"
   checksum: 10c0/6861c6ec9dc3cb99c745b287d92b2a8f409951852940205b4bb106faceb790544288622a0db7aa152f37793e2fc8f303628787883d9a679f2126605204feb97f
+  languageName: node
+  linkType: hard
+
+"minipass@npm:^7.0.2, minipass@npm:^7.0.3, minipass@npm:^7.1.2":
+  version: 7.1.2
+  resolution: "minipass@npm:7.1.2"
+  checksum: 10c0/b0fd20bb9fb56e5fa9a8bfac539e8915ae07430a619e4b86ff71f5fc757ef3924b23b2c4230393af1eda647ed3d75739e4e0acb250a6b1eb277cf7f8fe449557
   languageName: node
   linkType: hard
 
@@ -7430,7 +7500,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"path-scurry@npm:^1.10.2, path-scurry@npm:^1.6.1":
+"path-scurry@npm:^1.11.1":
+  version: 1.11.1
+  resolution: "path-scurry@npm:1.11.1"
+  dependencies:
+    lru-cache: "npm:^10.2.0"
+    minipass: "npm:^5.0.0 || ^6.0.2 || ^7.0.0"
+  checksum: 10c0/32a13711a2a505616ae1cc1b5076801e453e7aae6ac40ab55b388bb91b9d0547a52f5aaceff710ea400205f18691120d4431e520afbe4266b836fadede15872d
+  languageName: node
+  linkType: hard
+
+"path-scurry@npm:^1.6.1":
   version: 1.10.2
   resolution: "path-scurry@npm:1.10.2"
   dependencies:
@@ -7833,6 +7913,15 @@ __metadata:
   peerDependencies:
     react: ">=15"
   checksum: 10c0/e15c00dfef199249b4c6e6d98e5e76cc352ce66f3270f13df37cc069ddf7c05e43281e8c308fc407e4435d72924373baef1d2890e0f6b0b1eb423cf47315a053
+  languageName: node
+  linkType: hard
+
+"react-speech-recognition@npm:^3.10.0":
+  version: 3.10.0
+  resolution: "react-speech-recognition@npm:3.10.0"
+  peerDependencies:
+    react: ">=16.8.0"
+  checksum: 10c0/d992de98130f365237ab8e6bbac08a036937d546554f21a72c36854e2d1852f04202f893850003e4b7848db747ae59892cdfae63bc07b17c9cc0d8224c25a826
   languageName: node
   linkType: hard
 
@@ -8298,7 +8387,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:^7.3.5, semver@npm:^7.3.7, semver@npm:^7.5.3":
+"semver@npm:^7.3.5":
+  version: 7.6.2
+  resolution: "semver@npm:7.6.2"
+  bin:
+    semver: bin/semver.js
+  checksum: 10c0/97d3441e97ace8be4b1976433d1c32658f6afaff09f143e52c593bae7eef33de19e3e369c88bd985ce1042c6f441c80c6803078d1de2a9988080b66684cbb30c
+  languageName: node
+  linkType: hard
+
+"semver@npm:^7.3.7, semver@npm:^7.5.3":
   version: 7.6.1
   resolution: "semver@npm:7.6.1"
   bin:

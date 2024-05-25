@@ -89,7 +89,10 @@ export async function loadNote(noteFileName: any, editor?:EditorJS){
         let jsonTempObj = JSON.parse(JSON.stringify(tempString));
         switch (currentFileType) {
             case "json":
-                editor.blocks.render(jsonTempObj)
+                jsonTempObj = JSON.parse(tempString)
+                editor.blocks.render(jsonTempObj);
+                console.log("Finding the thing: " + JSON.stringify(jsonTempObj.blocks.find((element:any) => element.type === "todolist").data));
+                getData(jsonTempObj.blocks.find((element:any) => element.type === "todolist").data);
                 break;
             case "md":
                 tempString2 = await MarkdownToJSON(tempString);  
@@ -100,8 +103,7 @@ export async function loadNote(noteFileName: any, editor?:EditorJS){
                 break;
         }
      
-        console.log("Finding the thing: " + JSON.stringify(jsonTempObj.blocks.find((element:any) => element.type === "todolist").data));
-        getData(jsonTempObj.blocks.find((element:any) => element.type === "todolist").data);
+
         
     }
 
@@ -460,7 +462,7 @@ export async function SaveFile(editor:any, fileType:string) {
              noteString = await editor.save().then(async (outputData: any)  => {
                 switch (fileType) {
                     case 'json':
-                        stringToSave = outputData;
+                        stringToSave = JSON.stringify(outputData);
                         break;
                     case 'md':
                         stringToSave = await JSONToMarkdown(outputData);

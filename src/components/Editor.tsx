@@ -4,6 +4,7 @@ import MarkdownDisplay from "./MarkdownDisplay";
 import Markdown from 'react-markdown'
 import EditorJS from '@editorjs/editorjs';
 import TodoList from "./todolist";
+import Dictaphone from "./Dictaphone";
 
 
 
@@ -37,7 +38,7 @@ export default function Editor({mode, stringOfNote, checkNoteLoad, forwardedRef}
             {
                 mode==1 && (
                     <div className="output">
-                    <TodoList />
+                    <Dictaphone />
                     </div>
                 )
             }
