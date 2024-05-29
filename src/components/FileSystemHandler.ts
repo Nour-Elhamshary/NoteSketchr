@@ -42,6 +42,14 @@ export async function loadNoteInString(text:string, editor:EditorJS) {
 
 /**
  * 
+ */
+export async function newNote(editor:EditorJS): Promise<void> {
+  editor.clear();
+  SaveFile(editor, "json");
+}
+
+/**
+ * 
  * Loads a note from a file and then outputs it to the editor.
  * @async
  * @param noteFileName fileName - The name of the file that stores the note.
@@ -198,8 +206,8 @@ if (JSONData.blocks != undefined) {
             let fileName = "IMAGE_" + new Date().getTime() + "." + fileType[1];
             const savedFile = await Filesystem.writeFile({
                 directory: MainDirectory,
-                path: `${NOTES_DIR}/${fileName}`,
-                data: blob,
+                path: `${NOTES_DIR}/${fileName}`, 
+                data:  blob
             }).then(
                 async result => {
                     outputString += "!["
@@ -282,6 +290,9 @@ else {
 
 }
 
+
+
+
 /**
  * Converts any Markdown compatible files to JSON compatible for the editor.
  * @param StringData 
@@ -290,6 +301,7 @@ else {
  */
 
 export async function MarkdownToJSON(StringData: string): Promise<any> {
+    
     let data = StringData;
     console.log("StringData: ", StringData);
     //Replace the bold/italics stuff to HTML tags accordingly.
@@ -366,6 +378,7 @@ export async function MarkdownToJSON(StringData: string): Promise<any> {
             )
 
             if (typeof pictureContents.data != "string") {
+                
             let tempImageObj : imageObject = {
                 type: "image",
                 data: {
@@ -392,44 +405,10 @@ export async function MarkdownToJSON(StringData: string): Promise<any> {
     console.log(blocks);
     return blocks;
 }
- 
-/*
-    TODO - Function that updates the formatting in real time
-    Basically when the user presses enter, it checks on the 
-    previous block of the editor. If it has Markdown formatted
-    text, then it would try to update the previous block so that
-    it has its new format.  
-*/
-
-// export async function UpdateMDFormatting(editor: EditorJS) {
-//     var editorElement = document.getElementById("editorjs");
-//     if (editorElement != null && editor != undefined) {
-//         var block: BlockAPI | undefined = editor.blocks.getBlockByIndex(editor.blocks.getCurrentBlockIndex());
-//         if (block != undefined) {
-//             let blockString = await block.save().then((outputData: any) => {
-//                 console.log("Something to test: ",outputData);
-//                 //var temp1 = JSONToMarkdown(outputData);
-//                 //console.log(temp1);
-//                 var temp2 = await MarkdownToJSON(outputData.data.text);
-//                 console.log("Temp2:", temp2);
-
-//                 if (outputData.data.text != temp2[0].data.text) {
-//                         if (outputData.tool != temp2[0].type) {
-//                             editor.blocks.convert(outputData.id, "header");
-//                         }
-//                         else
-//                             editor.blocks.update(outputData.id, temp2[0].data);
-                        
-//                     }
-
-                    
 
 
-//             }
-//             )
-//         }
-//     }
-// }
+
+
 
 
 /* 
@@ -462,7 +441,10 @@ export async function SaveFile(editor:any, fileType:string) {
              noteString = await editor.save().then(async (outputData: any)  => {
                 switch (fileType) {
                     case 'json':
+                        //First we need to check if there are any images there
+                        
                         stringToSave = JSON.stringify(outputData);
+                        console.log(JSON.stringify(outputData));
                         break;
                     case 'md':
                         stringToSave = await JSONToMarkdown(outputData);
@@ -486,9 +468,9 @@ export async function SaveFile(editor:any, fileType:string) {
         //It'll be saved as a random date.
          const { value, cancelled } = await Dialog.prompt({
                title: 'Set name',
-               message: `Set the name of the note. If cancelled, it'll be set in a random name.`,
+               message: `Set the name of the note. If cancelled, it will do nothing.`,
          })
-         if (cancelled) fileName = new Date().getTime() + '.' + fileType;
+         if (cancelled) return;
          else fileName = value + '.' + fileType;
 
 

@@ -10,7 +10,7 @@ import '../theme/variables.css'
 import { menuController } from '@ionic/core/components';
 import ToDoListEJS from '../components/EditorJSToDoList'
 import '../components/FileSystemHandler'
-import { loadNotesList, loadNote, saveSameFile, getNotesList, SaveFile, loadNoteInString } from '../components/FileSystemHandler';
+import { loadNotesList, loadNote, saveSameFile, getNotesList, SaveFile, loadNoteInString, newNote } from '../components/FileSystemHandler';
 import EditorJS, { InlineToolConstructable } from '@editorjs/editorjs';
 import SimpleImage from 'simple-image-editorjs'
 
@@ -29,6 +29,7 @@ const Home: React.FC = () => {
   //Toggle for dark mode
   const [themeToggle, setThemeToggle] = useState(false);
 
+
   // Listen for the toggle check/uncheck to toggle the dark theme
   const toggleChange = (ev: ToggleCustomEvent) => {
     toggleDarkTheme(ev.detail.checked);
@@ -38,6 +39,19 @@ const Home: React.FC = () => {
   const toggleDarkTheme = (shouldAdd: boolean) => {
     document.body.classList.toggle('dark', shouldAdd);
     console.log(shouldAdd);
+
+    const logoElement = document.getElementById("logoID");
+
+    if (shouldAdd) {
+      logoElement?.classList.remove("logoBright");
+      logoElement?.classList.add("logoDark");
+      console.log("Logo should be white");
+    }
+    else if (!shouldAdd){
+      logoElement?.classList.remove("logoDark");
+      logoElement?.classList.add("logoBright");
+      console.log("Logo should be dark");
+    }
   };
 
   // Check/uncheck the toggle and update the theme based on isDark
@@ -46,6 +60,24 @@ const Home: React.FC = () => {
     toggleDarkTheme(isDark);
   };
 
+
+  const DEFAULT_INITIAL_DATA = () => {
+    return {
+      "time": new Date().getTime(),
+      "blocks": [
+        {
+          "type": "header",
+          "data": {
+            "text": "This is my awesome editor!",
+            "level": 1
+          }
+        },
+      ]
+    }
+  }
+
+  const ejInstance = useRef<EditorJS>();
+  
 
   useEffect(() => {
     // Use matchMedia to check the user preference
@@ -57,14 +89,48 @@ const Home: React.FC = () => {
 
     // Listen for changes to the prefers-color-scheme media query
     prefersDark.addEventListener('change', (mediaQuery) => initializeDarkTheme(mediaQuery.matches));
-  
+    
+    //We then try to load the editorJS itself.
+    
+
+      if (!ejInstance.current) {
+        const editor = new EditorJS({
+          holder:'editorjs',
+          tools: {
+            header: Header,
+            image: SimpleImage,
+            todolist: {
+              class: ToDoListEJS
+            }
+          },
+          minHeight:200,
+          onChange: (api, event) => {
+            //UpdateMDFormatting(altEditor);
+          }
+        })
+
+        ejInstance.current = editor;
+      }
+
+      return () => {
+        if (ejInstance.current) {
+          ejInstance.current.destroy();
+        }
+      }
+
+
     var editorElement = document.getElementById("editorjs");
-    if (editorElement != null && altEditor != undefined) {
-    editorElement.addEventListener("keyup", function (e) {
-      //if (e.code == "Enter") 
-  })
-  }
-}, []);
+
+
+    
+
+  }, []);
+
+  
+
+    
+
+
 
   
   const [isInMode, setMode] = useState(0);
@@ -75,21 +141,21 @@ const Home: React.FC = () => {
   const inputFile = useRef<HTMLInputElement | null>(null);
   
   //Editor React State
-  const [altEditor] = useState(new EditorJS({
-    holder:'editorjs',
+  // const [altEditor] = useState(new EditorJS({
+  //   holder:'editorjs',
 
-    tools: {
-      header: Header,
-      image: SimpleImage,
-      todolist: {
-        class: ToDoListEJS
-      }
-    },
-
-    onChange: (api, event) => {
-      //UpdateMDFormatting(altEditor);
-    }
-  }));
+  //   tools: {
+  //     header: Header,
+  //     image: SimpleImage,
+  //     todolist: {
+  //       class: ToDoListEJS
+  //     }
+  //   },
+  //   minHeight:200,
+  //   onChange: (api, event) => {
+  //     //UpdateMDFormatting(altEditor);
+  //   }
+  // }));
 
 
   
@@ -110,7 +176,8 @@ const Home: React.FC = () => {
           let temp = await noteFile.text();
           
           console.log(temp);
-          await loadNoteInString(temp, altEditor);
+          if (ejInstance.current != undefined)
+          await loadNoteInString(temp, ejInstance.current);
           inputFile.current.files = null;
           inputFile.current.value = '';
     }
@@ -155,35 +222,25 @@ const Home: React.FC = () => {
         </IonHeader>
         <IonContent>
         <div className="buttons-options">
-            <IonButton fill="outline" onClick={() => setMode(0)}>Script</IonButton>
-            <IonButton fill="outline" onClick={() => setMode(1)}>Preview</IonButton>
-            <IonButton fill="outline" onClick={() => setMode(2)}>Alt Script</IonButton>
-            {/* This input element should be hidden, we are just using it as a way to upload. */}
-            <input type='file' id='file' ref={inputFile} style={{display: 'none'}} onChange={() => asyncLoadNote()}/>
             <IonItem>
             <IonToggle checked={themeToggle} onIonChange={toggleChange} justify="space-between">
               Dark Mode
             </IonToggle>
             </IonItem>
-
-            {/* This is the actual button that does the input element's job. */}
+            <IonButton fill="outline" onClick={() => {if (ejInstance.current != undefined) newNote(ejInstance.current)}}>New Note</IonButton>
             <IonButton fill="outline"onClick={() => inputFile.current?.click()}>Load a note</IonButton>
-            
+
             <IonButton fill="outline" onClick={() => {
-              SaveFile(altEditor, "json")}
+              if (ejInstance.current != undefined) SaveFile(ejInstance.current, "json")}
             }>Save a note in JSON</IonButton>
-            
+
             <IonButton fill="outline" onClick={() => {
-              SaveFile(altEditor, "md")}
+              if (ejInstance.current != undefined) SaveFile(ejInstance.current, "md")}
             }>Save a note in MD</IonButton>
 
             <IonButton fill="outline" onClick={() => {
               saveSameFile(noteChild.current?.textContent, currentNoteIndex)}
             }>Save the current note</IonButton>
-
-            <IonButton fill="outline" onClick={() => {
-              }
-            }>Update previous block</IonButton>
 
         </div>
         </IonContent>
@@ -200,7 +257,7 @@ const Home: React.FC = () => {
         {Array.from({length: listOfNotes.length}, (_, index) => {
 
     return (
-      <IonItem key={index} button onClick={async () => {getNotesList(); await loadNote(listOfNotes.at(index)?.name, altEditor); setNoteIndex(index)}}>
+      <IonItem key={index} button onClick={async () => {getNotesList(); if (ejInstance.current != undefined) {await loadNote(listOfNotes.at(index)?.name, ejInstance.current);} setNoteIndex(index)}}>
         <IonLabel>
           {listOfNotes.at(index)?.name}
         </IonLabel>
@@ -213,10 +270,20 @@ const Home: React.FC = () => {
     <IonPage id="main-content">
       <IonHeader>
         <IonToolbar>
-          
-          <IonTitle>NoteSketchr (VERY WIP)</IonTitle>
+          <IonButtons slot="start">
+          <IonButton onClick={openOptionsMenu}>Options</IonButton>
+          </IonButtons>
+        <IonTitle>
+          <img 
+                      src="src/assets/logo.svg"
+                      width="150em"  
+                      id="logoID"
+          />
+                    
+          </IonTitle>
+
           <IonButtons slot="end">
-            <IonButton onClick={openOptionsMenu}>Options</IonButton>
+            
             <IonButton onClick={openNotesMenu}>Notes</IonButton>
           </IonButtons>
         </IonToolbar>

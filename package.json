@@ -44,6 +44,7 @@
     "regenerator-runtime": "^0.14.1"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^6.0.0",
     "@editorjs/image": "^2.9.0",
     "@testing-library/dom": ">=7.21.4",
