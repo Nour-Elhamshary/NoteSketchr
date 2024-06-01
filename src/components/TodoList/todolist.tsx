@@ -48,22 +48,19 @@ export default function TodoList() {
 
     var tempData = returnData();
     var tempData2 = returnSavedData();
-    console.log("tempTodoData before the fact: " + tempData.data.todoItems);
-    console.log("tempSavedTodoData before the fact: " + tempData2.data.todoItems);
+    
 
     
 
     if ((tempData != null || tempData != undefined) && (listState == null || listState == undefined || listState.length == 0)) {
-        console.log("tempTodoData before we check on the data: " + tempData.data.todoItems);
+        
         if (tempData.data.todoItems.length > 0) loadList();
-        console.log("tempTodoData after the fact: " + tempData.data.todoItems);
+
     }
 
 
     function addInList(text:string) {
-        console.log("We should be adding something in the list!");
-
-        console.log("oldIdValue: " + oldIdValue);
+        
         let valueToSet = 0;
         if (oldIdValue != null) {
             valueToSet = oldIdValue
@@ -76,8 +73,7 @@ export default function TodoList() {
             {id: valueToSet, content: text}
         ]);
         nextId++;
-        console.log("The nextId is:" + valueToSet);
-        console.log("The list state after adding: " + listState);
+        
         saveList([
             ...listState,
             {id: valueToSet, content: text}
@@ -86,9 +82,9 @@ export default function TodoList() {
     }
 
     function removeInList(id:number) {
-        console.log("We should be removing something in the list.")
+       
         oldIdValue = id;
-        console.log(id);
+
         setListState(
             listState.filter(item => item.id !== id)
         )
@@ -111,18 +107,9 @@ export default function TodoList() {
    
 
     function loadList() {
-        //Logically, it should load a file and then does that, but for
-        //testing purposes, we just do a random object for now.
-        // var jsonObj = {
-        //     "todoItems":[
-        //         "Hi! If you see this",
-        //         "Then that means that the loading",
-        //         "Is fully working!"
-        //     ]
-        // };
 
         let jsonObj = returnData();
-        console.log("We are trying to loadList() from: " + JSON.stringify(jsonObj));
+       
         var tempArray: Array<{id: number, content: string}> = new Array<{id: number, content: string}>();
 
         for (var i = 0; i < jsonObj.data.todoItems.length; i++) {
@@ -155,7 +142,7 @@ export default function TodoList() {
     function saveList(arrayToSave:Array<{id: number, content: string}>) {
         
         var jsonObj = convertListToJSON(arrayToSave);
-        console.log(JSON.stringify(jsonObj));
+       
         getSavedData(jsonObj);
     }
     return (

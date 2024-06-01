@@ -1,16 +1,16 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButtons, IonButton, IonMenu, IonItem, IonLabel, IonToggle } from '@ionic/react';
 import './Home.css';
 import { createContext, useState, useRef, useEffect } from 'react';
-import Editor from '../components/Editor';
+import Editor from '../components/Editor/Editor';
 import Header from '@editorjs/header';
 import ImageTool from '@editorjs/image';
 import {FileInfo } from '@capacitor/filesystem';
 import type { ToggleCustomEvent } from '@ionic/react';
 import '../theme/variables.css'
 import { menuController } from '@ionic/core/components';
-import ToDoListEJS from '../components/EditorJSToDoList'
-import '../components/FileSystemHandler'
-import { loadNotesList, loadNote, saveSameFile, getNotesList, SaveFile, loadNoteInString, newNote } from '../components/FileSystemHandler';
+import ToDoListEJS from '../components/TodoList/EditorJSToDoList'
+import '../components/DataHandling/FileSystemHandler'
+import { loadNotesList, loadNote, saveSameFile, getNotesList, SaveFile, loadNoteInString, newNote } from '../components/DataHandling/FileSystemHandler';
 import EditorJS, { InlineToolConstructable } from '@editorjs/editorjs';
 import SimpleImage from 'simple-image-editorjs'
 
@@ -21,8 +21,8 @@ const Home: React.FC = () => {
   /*Set the one usestate for editor mode. It's integer for enumeration purposes. 
   On the list of modes to switch:
 
-  0 - Script
-  1 - Preview
+  0 - Editor
+  1 - Dictaphone
   
   */
 
@@ -38,19 +38,19 @@ const Home: React.FC = () => {
   // Add or remove the "dark" class on the document body
   const toggleDarkTheme = (shouldAdd: boolean) => {
     document.body.classList.toggle('dark', shouldAdd);
-    console.log(shouldAdd);
+
 
     const logoElement = document.getElementById("logoID");
 
     if (shouldAdd) {
       logoElement?.classList.remove("logoBright");
       logoElement?.classList.add("logoDark");
-      console.log("Logo should be white");
+
     }
     else if (!shouldAdd){
       logoElement?.classList.remove("logoDark");
       logoElement?.classList.add("logoBright");
-      console.log("Logo should be dark");
+
     }
   };
 
@@ -60,21 +60,6 @@ const Home: React.FC = () => {
     toggleDarkTheme(isDark);
   };
 
-
-  const DEFAULT_INITIAL_DATA = () => {
-    return {
-      "time": new Date().getTime(),
-      "blocks": [
-        {
-          "type": "header",
-          "data": {
-            "text": "This is my awesome editor!",
-            "level": 1
-          }
-        },
-      ]
-    }
-  }
 
   const ejInstance = useRef<EditorJS>();
   
@@ -119,7 +104,7 @@ const Home: React.FC = () => {
       }
 
 
-    var editorElement = document.getElementById("editorjs");
+    
 
 
     
@@ -129,34 +114,16 @@ const Home: React.FC = () => {
   
 
     
-
+  var editorElement = document.getElementById("editorjs");
 
 
   
   const [isInMode, setMode] = useState(0);
-  const initEditorCalled = useRef(false);
   
   //Try to input in files
   //First get a constant that handles an input element
   const inputFile = useRef<HTMLInputElement | null>(null);
   
-  //Editor React State
-  // const [altEditor] = useState(new EditorJS({
-  //   holder:'editorjs',
-
-  //   tools: {
-  //     header: Header,
-  //     image: SimpleImage,
-  //     todolist: {
-  //       class: ToDoListEJS
-  //     }
-  //   },
-  //   minHeight:200,
-  //   onChange: (api, event) => {
-  //     //UpdateMDFormatting(altEditor);
-  //   }
-  // }));
-
 
   
   //Then get the file that is in the list.
@@ -167,24 +134,7 @@ const Home: React.FC = () => {
   const [currentNoteIndex, setNoteIndex] = useState(0);
 
   const [listOfNotes, setListOfNotes] = useState<FileInfo[]>([]);
-  async function asyncLoadNote(): Promise<void>{
-        //Then it should provide either a file or no file. Check about it.
-        if (inputFile.current?.files != null) {
-          //There should at least be one file on this array if the condition is true.
-          //So try to fetch it.
-          var noteFile = inputFile.current?.files[0];
-          let temp = await noteFile.text();
-          
-          console.log(temp);
-          if (ejInstance.current != undefined)
-          await loadNoteInString(temp, ejInstance.current);
-          inputFile.current.files = null;
-          inputFile.current.value = '';
-    }
 
-      
-
-  }
 
 
   async function openOptionsMenu() {
@@ -209,6 +159,7 @@ const Home: React.FC = () => {
 
   }
 
+  (document.getElementById("editorjs")) ? console.log("true") : console.log("false");
   return (
     <>
 
@@ -228,7 +179,6 @@ const Home: React.FC = () => {
             </IonToggle>
             </IonItem>
             <IonButton fill="outline" onClick={() => {if (ejInstance.current != undefined) newNote(ejInstance.current)}}>New Note</IonButton>
-            <IonButton fill="outline"onClick={() => inputFile.current?.click()}>Load a note</IonButton>
 
             <IonButton fill="outline" onClick={() => {
               if (ejInstance.current != undefined) SaveFile(ejInstance.current, "json")}
@@ -241,6 +191,10 @@ const Home: React.FC = () => {
             <IonButton fill="outline" onClick={() => {
               saveSameFile(noteChild.current?.textContent, currentNoteIndex)}
             }>Save the current note</IonButton>
+
+            <IonButton fill="outline"onClick={() => setMode(0)}>Editor View</IonButton>
+            
+            <IonButton fill="outline"onClick={() => setMode(1)}>Dictaphone View</IonButton>
 
         </div>
         </IonContent>

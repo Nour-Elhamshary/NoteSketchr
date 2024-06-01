@@ -1,7 +1,7 @@
 import { Dialog } from '@capacitor/dialog';
 import { Directory, Encoding, FileInfo, Filesystem } from '@capacitor/filesystem';
 import EditorJS, { BlockAPI, OutputBlockData } from '@editorjs/editorjs';
-import {getData} from "./EditorJSToDoIntermediary";
+import {getData} from "../TodoList/EditorJSToDoIntermediary";
 
 //Constants.
 const NOTES_DIR = 'notesketchr';
@@ -69,7 +69,7 @@ export async function loadNote(noteFileName: any, editor?:EditorJS){
     //If the file name is actually available, then execute these
     //sets of statements.
 
-    console.log(noteFileName);
+    
     if (noteFileName != undefined) {
         //Attempt to load the file itself, and store the contents to tempString
         const contents = await Filesystem.readFile({
@@ -77,10 +77,8 @@ export async function loadNote(noteFileName: any, editor?:EditorJS){
             directory: MainDirectory,
             encoding: Encoding.UTF8
         }).then(result => {
-            console.log(result.data);
             tempString = result.data;
             currentFileType = noteFileName.split('.').pop();
-            console.log("The file type is: " + currentFileType);
         
     })
     }
@@ -99,7 +97,6 @@ export async function loadNote(noteFileName: any, editor?:EditorJS){
             case "json":
                 jsonTempObj = JSON.parse(tempString)
                 editor.blocks.render(jsonTempObj);
-                console.log("Finding the thing: " + JSON.stringify(jsonTempObj.blocks.find((element:any) => element.type === "todolist").data));
                 getData(jsonTempObj.blocks.find((element:any) => element.type === "todolist").data);
                 break;
             case "md":
@@ -107,7 +104,7 @@ export async function loadNote(noteFileName: any, editor?:EditorJS){
                 editor.blocks.render({"blocks":tempString2});
                 break;
             default:
-                console.log("Nothing!!");
+                
                 break;
         }
      
@@ -130,13 +127,12 @@ export async function loadNotesList() {
         path: NOTES_DIR
     }).then(
         result => {
-            console.log('List: ', result)
+            
             notesList = result.files;
         },
 
         async err => {
-            console.log('Error found: ', err);
-            console.log('Attempting to create the folder...')
+
             await Filesystem.mkdir({
                 path: NOTES_DIR,
                 directory: MainDirectory
@@ -174,12 +170,12 @@ JSON parsing functions to convert to Markdown and vice versa.
 export async function JSONToMarkdown(JSONData: any): Promise<string> {
     let outputString = "";
 
-    console.log(JSONData.blocks);
+
 
 if (JSONData.blocks != undefined) {
     //If we are dealing with JSON that has multiple blocks.
     for (let i = 0; i < JSONData.blocks.length; i++) {
-        //console.log(JSONData.blocks[i].type);
+
         switch (JSONData.blocks[i].type) {
             case 'paragraph':
                 outputString += JSONData.blocks[i].data.text + `\n`;
@@ -200,7 +196,7 @@ if (JSONData.blocks != undefined) {
 
             //First, we get the file type itself.
             const blob = await fetch(JSONData.blocks[i].data.url).then(r => r.blob());
-            console.log("Blob: ", blob )
+
             let fileType = blob.type.split("/");
 
             let fileName = "IMAGE_" + new Date().getTime() + "." + fileType[1];
@@ -216,7 +212,7 @@ if (JSONData.blocks != undefined) {
                     + `${NOTES_DIR}/${fileName}`
                     + "]";
 
-                    console.log(`${NOTES_DIR}/${fileName}`);
+
                 }
             )
             default:
@@ -225,9 +221,7 @@ if (JSONData.blocks != undefined) {
     }
 }
 else {
-    console.log("JSONData: ", JSONData);
 
-        console.log(JSONData.tool);
         switch (JSONData.tool) {
             case 'paragraph':
                 outputString += JSONData.data.text + `\n`;
@@ -248,7 +242,7 @@ else {
 
             //First, we get the file type itself.
             const blob = JSONData.data.url;
-            console.log("Blob: ", blob )
+
             let fileType = blob.type.split("/");
 
             let fileName = "IMAGE_" + new Date().getTime() + "." + fileType[1];
@@ -264,7 +258,7 @@ else {
                     + `${NOTES_DIR}/${fileName}`
                     + "]";
 
-                    console.log(`${NOTES_DIR}/${fileName}`);
+
                 }
             )
             break;
@@ -285,7 +279,7 @@ else {
     //Deal with other HTML symbols, like spaces and line breaks if necessary.
     outputString = outputString.replace(/&nbsp;/g, " ");
  
-    console.log(outputString);
+
     return outputString;
 
 }
@@ -303,7 +297,7 @@ else {
 export async function MarkdownToJSON(StringData: string): Promise<any> {
     
     let data = StringData;
-    console.log("StringData: ", StringData);
+
     //Replace the bold/italics stuff to HTML tags accordingly.
     //For bold
     data = data.replace(/(\*\*)/gm, "<b>"); //Replace first ** on every word with <b> tag
@@ -315,7 +309,7 @@ export async function MarkdownToJSON(StringData: string): Promise<any> {
     data = data.replace(/<i>(?!\b)/gm, "</i>");
 
 
-    console.log(data);
+  
     let strings = data.split(/\n/);
 
     //Then try to convert it into a JSON object.
@@ -357,7 +351,7 @@ export async function MarkdownToJSON(StringData: string): Promise<any> {
                     }
                 }
                 blocks[i] = tempHeaderObj;
-                console.log(blocks[i]);
+           
             
         }
         else if (strings[i].includes("![")) {
@@ -370,7 +364,7 @@ export async function MarkdownToJSON(StringData: string): Promise<any> {
 
             //Now, the [ is what provides the split, so... we split it.
             let tempStringFinal = tempString.split(/\[/g);
-            console.log(tempStringFinal);
+      
             const pictureContents = await Filesystem.readFile({
                 path: tempStringFinal[1],
                 directory: MainDirectory
@@ -402,7 +396,7 @@ export async function MarkdownToJSON(StringData: string): Promise<any> {
 
     }
     }
-    console.log(blocks);
+
     return blocks;
 }
 
@@ -423,7 +417,7 @@ For now, we are going to deal through mobile, which means we get to deal with Ca
 
 
 export async function SaveFile(editor:any, fileType:string) {
-    console.log("Check that the function saveFile() even works.");
+
 
         //Variables to smooth out the saving experience
         let noteString = null;
@@ -433,18 +427,17 @@ export async function SaveFile(editor:any, fileType:string) {
         //Check if there's an element with id "editorjs".
         //Double checking as to REALLY make sure the editor instance is here.
         var editorElement = document.getElementById("editorjs");
-        console.log(editorElement);
-        console.log(editor);
+
         if (editorElement != null && editor != undefined) {
             //Switch statement! Check the file types.
-            console.log("On the switch statement now.");
+
              noteString = await editor.save().then(async (outputData: any)  => {
                 switch (fileType) {
                     case 'json':
                         //First we need to check if there are any images there
                         
                         stringToSave = JSON.stringify(outputData);
-                        console.log(JSON.stringify(outputData));
+
                         break;
                     case 'md':
                         stringToSave = await JSONToMarkdown(outputData);
@@ -452,7 +445,7 @@ export async function SaveFile(editor:any, fileType:string) {
                     default:
                         throw new Error('Error: Didn\'t choose any format, so will not save.');
                 }
-                 //console.log('Article data: ', outputData)
+
                  
                }).catch((error: any) => {
                  console.log('Saving failed: ', error)

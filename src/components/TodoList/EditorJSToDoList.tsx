@@ -4,6 +4,16 @@ import TodoList from './todolist';
 import { createRoot } from 'react-dom/client';
 import {returnSavedData} from "./EditorJSToDoIntermediary";
 
+/*
+    ToDoListEJS, the addon component of Editor.js. One of the few classes
+    in the React-focused application due to how Editor.js only allows
+    classes for addons as to implement the BlockTool class.
+
+    All in all, it just displays the .tsx file of Todo list and renders
+    in a manner where it is React friendly, and the intermediary deals with
+    saving and loading the data.
+
+*/
 
 export default class ToDoListEJS implements BlockTool{
     divNode = document.createElement("div");
@@ -23,8 +33,6 @@ export default class ToDoListEJS implements BlockTool{
 
 
     save(){
-        console.log("This should be ONLY in the save function, so if it works: it works there.");
-        console.log(returnSavedData());
         return returnSavedData();
     }
 

@@ -1,4 +1,12 @@
-//We store in the global variable that stores in anything javascript.
+/*
+    This is an intermediary of the To-do list function component and the
+    To-do list EditorJS class add-on, where they save and load the data
+    in such a manner:
+
+    SavedData deals with data that is going to be saved to EditorJS
+    normal Data means that it shows what the current data for the 
+    items in To-Do list is.
+*/
 
 interface todoItemsData {
     data: {
@@ -32,12 +40,12 @@ export function flushSavedData() {
 
 export function getData(data:todoItemsData) {
     tempTodoData = data;
-    console.log("getData(): " + tempTodoData);
+
 }
 
 export function getSavedData(data:todoItemsData) {
     tempSaveTodoData = data;
-    console.log("getData(): " + tempSaveTodoData);
+
 }
 
 export function returnData(): todoItemsData {
